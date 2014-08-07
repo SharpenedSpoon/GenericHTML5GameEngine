@@ -14,7 +14,6 @@ createGameObjects = () ->
 	p2.color = "#0000ff"
 
 	ball = new Ball("ball")
-	console.log 'hi'
 	return null
 
 awake = () ->

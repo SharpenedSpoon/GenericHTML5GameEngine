@@ -20,6 +20,7 @@ frame = () ->
 	update(dt)
 	render(dtStep)
 	last = now
+	requestAnimationFrame(frame)
 	return null
 
 

@@ -90,6 +90,7 @@
     update(dt);
     render(dtStep);
     last = now;
+    requestAnimationFrame(frame);
     return null;
   };
 
@@ -294,7 +295,6 @@
     p2.keyDown = KeyCode.Down;
     p2.color = "#0000ff";
     ball = new Ball("ball");
-    console.log('hi');
     return null;
   };
 
