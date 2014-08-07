@@ -14,6 +14,8 @@ createGameObjects = () ->
 	p2.color = "#0000ff"
 
 	ball = new Ball("ball")
+
+	Debug.Log('created objects')
 	return null
 
 awake = () ->

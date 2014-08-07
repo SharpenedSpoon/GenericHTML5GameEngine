@@ -2,6 +2,8 @@
 #
 # Raw functions/utility classes and definitions
 #
+# @codekit-prepend "_debug.coffee";
+
 # @codekit-prepend "lib/_drawing-functions.coffee";
 # @codekit-prepend "lib/_game-loop-bootstrap.coffee";
 # @codekit-prepend "lib/_KeyCode.coffee";

@@ -2,15 +2,38 @@
 
 /*
 --------------------------------------------
-     Begin _drawing-functions.coffee
+     Begin _debug.coffee
 --------------------------------------------
  */
 
 (function() {
-  var Ball, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, render, start, step, timestamp, update,
+  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Debug = {
+    getTime: function() {
+      var now;
+      now = new Date();
+      return now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+    },
+    Log: function(txt) {
+      var oldHtml;
+      oldHtml = $('#debug').html();
+      if (oldHtml !== '') {
+        oldHtml = oldHtml + '<br/>';
+      }
+      return $('#debug').html(oldHtml + this.getTime() + ' - ' + txt);
+    }
+  };
+
+
+  /*
+  --------------------------------------------
+       Begin _drawing-functions.coffee
+  --------------------------------------------
+   */
 
   drawSquare = function(x, y, w, h, color) {
     if (color == null) {
@@ -295,6 +318,7 @@
     p2.keyDown = KeyCode.Down;
     p2.color = "#0000ff";
     ball = new Ball("ball");
+    Debug.Log('created objects');
     return null;
   };
 

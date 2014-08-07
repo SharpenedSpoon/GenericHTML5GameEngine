@@ -3,3 +3,4 @@
 config.codekit
 *.map
 *ck-sourcemap-source.coffee
+games/pong/pong-ck-sourcemap-source-ck-sourcemap-source.js

@@ -1,4 +1,23 @@
+* {
+	box-sizing: border-box;
+}
+
+.container {
+	width: 90%;
+	margin: 0 auto;
+	padding: 100px;
+}
+
 canvas {
 	border: solid 1px black;
-	margin: 50px;
+	display: inline-block;
+}
+
+#debug {
+	border: solid 1px #666;
+	min-height: 500px;
+	max-height: 500px;
+	overflow-y: auto;
+	display: inline-block;
+	padding: 13px;
 }
