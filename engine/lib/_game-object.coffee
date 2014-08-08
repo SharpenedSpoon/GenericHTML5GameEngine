@@ -14,6 +14,8 @@ class GameObject
 
 	collisionGroup = null
 
+	collidedObjects = null
+
 
 	constructor: (name) ->
 		@enabled = true
@@ -24,6 +26,8 @@ class GameObject
 		@y = 0
 		@width = 0
 		@height = 0
+
+		@collidedObjects = []
 
 		@id = gameObjects.length
 		gameObjects.push this
@@ -42,4 +46,6 @@ class GameObject
 
 	onKeyUp: (key) =>
 
-	onCollision: (other) =>
+	onCollisionEnter: (other) =>
+
+	onCollisionExit: (other) =>

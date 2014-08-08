@@ -11,6 +11,8 @@ class Player extends GameObject
 
 	keysPressed = null
 
+	inCollision = null
+
 	constructor: (name) ->
 		super name
 		@color = "#000000"
@@ -22,6 +24,8 @@ class Player extends GameObject
 			@keysPressed[i] = false
 
 		@collisionGroup = "player"
+
+		@inCollision = false
 
 
 	awake: () =>
@@ -40,10 +44,21 @@ class Player extends GameObject
 		@x += hor
 		@y += ver
 
+		@x = Math.max(0, Math.min(canvas.width, @x))
+		@y = Math.max(0, Math.min(canvas.height, @y))
+
 		super dt
 
 	render: (dt) =>
 		drawSquare(@x, @y, @width, @height, @color)
+		if @inCollision
+			drawPolygon([
+				[@x-0.5, @y-0.5]
+				[@x-0.5, @y+@height+0.5]
+				[@x+@width+0.5,@y+@height+0.5]
+				[@x+@width+0.5,@y-0.5]
+			], '#ff0000')
+		@inCollision = false
 		super dt
 
 	onKeyDown: (key) =>
@@ -52,4 +67,13 @@ class Player extends GameObject
 	onKeyUp: (key) =>
 		@keysPressed[key] = false
 
-	onCollision: (other) =>
+	onCollisionEnter: (other) =>
+		@inCollision = true
+
+	onCollisionExit: (other) =>
+		@inCollision = false
+		# check if we are still in a collision
+		for collisionBool in @collidedObjects
+			if collisionBool
+				@inCollision = true
+				break

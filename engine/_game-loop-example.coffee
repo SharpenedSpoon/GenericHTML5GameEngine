@@ -17,14 +17,36 @@ update = (dt) ->
 	return null
 
 fixedUpdate = (step) ->
-	for o in gameObjects
-		if o.enabled
-			o.fixedUpdate(step)
-			for o2 in gameObjects
-				if o2.enabled && o != o2
-					if o.x >= o2.x && o.x <= o2.x + o2.width && o.y >= o2.y && o.y <= o2.y + o2.height
-						o.onCollision(o2)
+	oldCollide = false
+	for o1 in gameObjects
+		if o1.enabled
+			o1.fixedUpdate(step)
 
+			# check for collisions with each other object
+			for o2 in gameObjects
+				oldCollide = false
+				newCollide = false
+				if o1.collidedObjects[o2.id]
+					# js will auto-handle arrays smaller
+					# than the index being checked to
+					# return 'undefined'
+					oldCollide = true
+
+				if o2.enabled && o1 != o2
+					# rectangle collision check
+					if o1.x >= o2.x && o1.x <= o2.x + o2.width && o1.y >= o2.y && o1.y <= o2.y + o2.height
+						newCollide = true
+						if ! oldCollide # this is a new collision
+							o1.onCollisionEnter(o2)
+							console.log 'collision enter between ' + o1.name + ' and ' + o2.name
+
+				if oldCollide && ! newCollide # the collision ended
+					console.log 'collision exit between ' + o1.name + ' and ' + o2.name
+					o1.onCollisionExit(o2)
+
+				# either way, we keep track of the current
+				# collision state with other object
+				o1.collidedObjects[o2.id] = newCollide
 	return null
 
 render = (dt) ->

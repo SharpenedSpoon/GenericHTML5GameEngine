@@ -58,4 +58,6 @@ class Ball extends GameObject
 
 	onKeyUp: (key) =>
 
-	onCollision: (other) =>
+	onCollisionEnter: (other) =>
+
+	onCollisionExit: (other) =>

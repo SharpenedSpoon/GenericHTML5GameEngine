@@ -189,7 +189,7 @@
    */
 
   GameObject = (function() {
-    var collisionGroup, enabled, height, id, name, width, x, y;
+    var collidedObjects, collisionGroup, enabled, height, id, name, width, x, y;
 
     name = null;
 
@@ -207,8 +207,11 @@
 
     collisionGroup = null;
 
+    collidedObjects = null;
+
     function GameObject(name) {
-      this.onCollision = __bind(this.onCollision, this);
+      this.onCollisionExit = __bind(this.onCollisionExit, this);
+      this.onCollisionEnter = __bind(this.onCollisionEnter, this);
       this.onKeyUp = __bind(this.onKeyUp, this);
       this.onKeyDown = __bind(this.onKeyDown, this);
       this.render = __bind(this.render, this);
@@ -223,6 +226,7 @@
       this.y = 0;
       this.width = 0;
       this.height = 0;
+      this.collidedObjects = [];
       this.id = gameObjects.length;
       gameObjects.push(this);
     }
@@ -241,7 +245,9 @@
 
     GameObject.prototype.onKeyUp = function(key) {};
 
-    GameObject.prototype.onCollision = function(other) {};
+    GameObject.prototype.onCollisionEnter = function(other) {};
+
+    GameObject.prototype.onCollisionExit = function(other) {};
 
     return GameObject;
 
@@ -356,18 +362,33 @@
   };
 
   fixedUpdate = function(step) {
-    var o, o2, _i, _j, _len, _len1;
+    var newCollide, o1, o2, oldCollide, _i, _j, _len, _len1;
+    oldCollide = false;
     for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o = gameObjects[_i];
-      if (o.enabled) {
-        o.fixedUpdate(step);
+      o1 = gameObjects[_i];
+      if (o1.enabled) {
+        o1.fixedUpdate(step);
         for (_j = 0, _len1 = gameObjects.length; _j < _len1; _j++) {
           o2 = gameObjects[_j];
-          if (o2.enabled && o !== o2) {
-            if (o.x >= o2.x && o.x <= o2.x + o2.width && o.y >= o2.y && o.y <= o2.y + o2.height) {
-              o.onCollision(o2);
+          oldCollide = false;
+          newCollide = false;
+          if (o1.collidedObjects[o2.id]) {
+            oldCollide = true;
+          }
+          if (o2.enabled && o1 !== o2) {
+            if (o1.x >= o2.x && o1.x <= o2.x + o2.width && o1.y >= o2.y && o1.y <= o2.y + o2.height) {
+              newCollide = true;
+              if (!oldCollide) {
+                o1.onCollisionEnter(o2);
+                console.log('collision enter between ' + o1.name + ' and ' + o2.name);
+              }
             }
           }
+          if (oldCollide && !newCollide) {
+            console.log('collision exit between ' + o1.name + ' and ' + o2.name);
+            o1.onCollisionExit(o2);
+          }
+          o1.collidedObjects[o2.id] = newCollide;
         }
       }
     }
@@ -397,7 +418,7 @@
    */
 
   Player = (function(_super) {
-    var color, hp, keyDown, keyLeft, keyRight, keyUp, keysPressed, maxHealth;
+    var color, hp, inCollision, keyDown, keyLeft, keyRight, keyUp, keysPressed, maxHealth;
 
     __extends(Player, _super);
 
@@ -417,8 +438,11 @@
 
     keysPressed = null;
 
+    inCollision = null;
+
     function Player(name) {
-      this.onCollision = __bind(this.onCollision, this);
+      this.onCollisionExit = __bind(this.onCollisionExit, this);
+      this.onCollisionEnter = __bind(this.onCollisionEnter, this);
       this.onKeyUp = __bind(this.onKeyUp, this);
       this.onKeyDown = __bind(this.onKeyDown, this);
       this.render = __bind(this.render, this);
@@ -434,6 +458,7 @@
         this.keysPressed[i] = false;
       }
       this.collisionGroup = "player";
+      this.inCollision = false;
     }
 
     Player.prototype.awake = function() {
@@ -460,11 +485,17 @@
       }
       this.x += hor;
       this.y += ver;
+      this.x = Math.max(0, Math.min(canvas.width, this.x));
+      this.y = Math.max(0, Math.min(canvas.height, this.y));
       return Player.__super__.update.call(this, dt);
     };
 
     Player.prototype.render = function(dt) {
       drawSquare(this.x, this.y, this.width, this.height, this.color);
+      if (this.inCollision) {
+        drawPolygon([[this.x - 0.5, this.y - 0.5], [this.x - 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y - 0.5]], '#ff0000');
+      }
+      this.inCollision = false;
       return Player.__super__.render.call(this, dt);
     };
 
@@ -476,7 +507,26 @@
       return this.keysPressed[key] = false;
     };
 
-    Player.prototype.onCollision = function(other) {};
+    Player.prototype.onCollisionEnter = function(other) {
+      return this.inCollision = true;
+    };
+
+    Player.prototype.onCollisionExit = function(other) {
+      var collisionBool, _i, _len, _ref, _results;
+      this.inCollision = false;
+      _ref = this.collidedObjects;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        collisionBool = _ref[_i];
+        if (collisionBool) {
+          this.inCollision = true;
+          break;
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
 
     return Player;
 
@@ -499,7 +549,8 @@
     lastPositions = null;
 
     function Ball(name) {
-      this.onCollision = __bind(this.onCollision, this);
+      this.onCollisionExit = __bind(this.onCollisionExit, this);
+      this.onCollisionEnter = __bind(this.onCollisionEnter, this);
       this.onKeyUp = __bind(this.onKeyUp, this);
       this.onKeyDown = __bind(this.onKeyDown, this);
       this.render = __bind(this.render, this);
@@ -569,7 +620,9 @@
 
     Ball.prototype.onKeyUp = function(key) {};
 
-    Ball.prototype.onCollision = function(other) {};
+    Ball.prototype.onCollisionEnter = function(other) {};
+
+    Ball.prototype.onCollisionExit = function(other) {};
 
     return Ball;
 
