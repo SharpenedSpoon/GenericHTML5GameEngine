@@ -4,6 +4,7 @@ dtStep = 0
 last = 0
 step = 1/60
 frames = 0
+paused = false
 
 timestamp = () -> window.performance.now()
 
@@ -20,7 +21,8 @@ frame = () ->
 	update(dt)
 	render(dtStep)
 	last = now
-	requestAnimationFrame(frame)
+	if ! paused
+		requestAnimationFrame(frame)
 	return null
 
 

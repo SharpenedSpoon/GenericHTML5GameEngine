@@ -55,10 +55,10 @@ fixedUpdate = (step) ->
 						newCollide = true
 						if ! oldCollide # this is a new collision
 							o1.onCollisionEnter(o2)
-							console.log 'collision enter between ' + o1.name + ' and ' + o2.name
+							#console.log 'collision enter between ' + o1.name + ' and ' + o2.name
 
 				if oldCollide && ! newCollide # the collision ended
-					console.log 'collision exit between ' + o1.name + ' and ' + o2.name
+					#console.log 'collision exit between ' + o1.name + ' and ' + o2.name
 					o1.onCollisionExit(o2)
 
 				# either way, we keep track of the current

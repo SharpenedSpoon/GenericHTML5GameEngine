@@ -13,6 +13,8 @@ class Player extends GameObject
 
 	inCollision = null
 
+	speed = null
+
 	constructor: (name) ->
 		super name
 		@color = "#000000"
@@ -27,10 +29,12 @@ class Player extends GameObject
 
 		@inCollision = false
 
+		@speed = 2
+
 
 	awake: () =>
-		@width = 5
-		@height = 10
+		@width = 32
+		@height = 64
 		super
 
 	update: (dt) =>
@@ -41,8 +45,8 @@ class Player extends GameObject
 		ver += 1 if @keysPressed[@keyDown]
 		ver -= 1 if @keysPressed[@keyUp]
 
-		@x += hor
-		@y += ver
+		@x += hor * @speed
+		@y += ver * @speed
 
 		@x = Math.max(0, Math.min(canvas.width, @x))
 		@y = Math.max(0, Math.min(canvas.height, @y))
@@ -58,7 +62,6 @@ class Player extends GameObject
 				[@x+@width+0.5,@y+@height+0.5]
 				[@x+@width+0.5,@y-0.5]
 			], '#ff0000')
-		@inCollision = false
 		super dt
 
 	onKeyDown: (key) =>

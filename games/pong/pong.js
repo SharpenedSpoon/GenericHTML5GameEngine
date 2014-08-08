@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, render, start, step, timestamp, update,
+  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -96,6 +96,8 @@
 
   frames = 0;
 
+  paused = false;
+
   timestamp = function() {
     return window.performance.now();
   };
@@ -113,7 +115,9 @@
     update(dt);
     render(dtStep);
     last = now;
-    requestAnimationFrame(frame);
+    if (!paused) {
+      requestAnimationFrame(frame);
+    }
     return null;
   };
 
@@ -380,12 +384,10 @@
               newCollide = true;
               if (!oldCollide) {
                 o1.onCollisionEnter(o2);
-                console.log('collision enter between ' + o1.name + ' and ' + o2.name);
               }
             }
           }
           if (oldCollide && !newCollide) {
-            console.log('collision exit between ' + o1.name + ' and ' + o2.name);
             o1.onCollisionExit(o2);
           }
           o1.collidedObjects[o2.id] = newCollide;
@@ -418,7 +420,7 @@
    */
 
   Player = (function(_super) {
-    var color, hp, inCollision, keyDown, keyLeft, keyRight, keyUp, keysPressed, maxHealth;
+    var color, hp, inCollision, keyDown, keyLeft, keyRight, keyUp, keysPressed, maxHealth, speed;
 
     __extends(Player, _super);
 
@@ -440,6 +442,8 @@
 
     inCollision = null;
 
+    speed = null;
+
     function Player(name) {
       this.onCollisionExit = __bind(this.onCollisionExit, this);
       this.onCollisionEnter = __bind(this.onCollisionEnter, this);
@@ -459,11 +463,12 @@
       }
       this.collisionGroup = "player";
       this.inCollision = false;
+      this.speed = 2;
     }
 
     Player.prototype.awake = function() {
-      this.width = 5;
-      this.height = 10;
+      this.width = 32;
+      this.height = 64;
       return Player.__super__.awake.apply(this, arguments);
     };
 
@@ -483,8 +488,8 @@
       if (this.keysPressed[this.keyUp]) {
         ver -= 1;
       }
-      this.x += hor;
-      this.y += ver;
+      this.x += hor * this.speed;
+      this.y += ver * this.speed;
       this.x = Math.max(0, Math.min(canvas.width, this.x));
       this.y = Math.max(0, Math.min(canvas.height, this.y));
       return Player.__super__.update.call(this, dt);
@@ -495,7 +500,6 @@
       if (this.inCollision) {
         drawPolygon([[this.x - 0.5, this.y - 0.5], [this.x - 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y - 0.5]], '#ff0000');
       }
-      this.inCollision = false;
       return Player.__super__.render.call(this, dt);
     };
 
@@ -573,17 +577,11 @@
       lastPositions = [];
     }
 
-    Ball.prototype.awake = function() {
-      return Ball.__super__.awake.apply(this, arguments);
-    };
+    Ball.prototype.awake = function() {};
 
-    Ball.prototype.start = function() {
-      return Ball.__super__.start.apply(this, arguments);
-    };
+    Ball.prototype.start = function() {};
 
-    Ball.prototype.fixedUpdate = function(step) {
-      return Ball.__super__.fixedUpdate.call(this, step);
-    };
+    Ball.prototype.fixedUpdate = function(step) {};
 
     Ball.prototype.update = function(dt) {
       lastPositions.unshift({
@@ -601,9 +599,8 @@
       }
       if (this.y > canvas.height || this.y < 0) {
         this.velocity.y = -1 * this.velocity.y;
-        this.y = Math.min(canvas.height, Math.max(0, this.y));
+        return this.y = Math.min(canvas.height, Math.max(0, this.y));
       }
-      return Ball.__super__.update.call(this, dt);
     };
 
     Ball.prototype.render = function(dt) {
@@ -613,14 +610,77 @@
         pos = lastPositions[i];
         drawSquare(pos.x, pos.y, this.width, this.height, "rgba(0,0,0," + ((lastPositions.length - i) / lastPositions.length) + ")");
       }
-      return Ball.__super__.render.call(this, dt);
+      return null;
     };
 
     Ball.prototype.onKeyDown = function(key) {};
 
     Ball.prototype.onKeyUp = function(key) {};
 
-    Ball.prototype.onCollisionEnter = function(other) {};
+    Ball.prototype.onCollisionEnter = function(other) {
+      var center, centerOther, debugText, halfSize, halfSizeOther, horizCollision, vertCollision;
+      horizCollision = false;
+      vertCollision = false;
+      if (other.collisionGroup === 'player') {
+        halfSize = {
+          width: 0.5 * this.width,
+          height: 0.5 * this.height
+        };
+        halfSizeOther = {
+          width: 0.5 * other.width,
+          height: 0.5 * other.height
+        };
+        center = {
+          x: this.x + halfSize.width,
+          y: this.y + halfSize.height
+        };
+        centerOther = {
+          x: other.x + halfSizeOther.width,
+          y: other.y + halfSizeOther.height
+        };
+        debugText = 'Collision: ' + this.name + ' <-> ' + other.name + ' ';
+        if (centerOther.x <= center.x) {
+          horizCollision = true;
+          debugText += '...on left ';
+        }
+        if (centerOther.x >= center.x) {
+          horizCollision = true;
+          debugText += '...on right ';
+        }
+        if (centerOther.y >= center.y) {
+          vertCollision = false;
+          debugText += '...on top ';
+        }
+        if (centerOther.y <= center.y) {
+          vertCollision = false;
+          debugText += '...on bottom ';
+        }
+        if (horizCollision && vertCollision) {
+          if (this.x - velocity.x >= other.x && this.x - velocity.x <= other.x + other.width) {
+            horizCollision = false;
+            debugText += '...got rid of horiz ';
+          }
+          if (this.y - velocity.y >= other.y && this.y - velocity.y <= other.y + other.height) {
+            vertCollision = false;
+            debugText += '...got rid of vert ';
+          }
+          if (!horizCollision && !vertCollision) {
+            horizCollision = true;
+            vertCollision = true;
+            debugText += '...got rid of too many things- put it back put it back oh shhiiiiiii';
+          }
+        }
+        console.log(debugText);
+        paused = true;
+        if (horizCollision) {
+          this.velocity.x *= -1;
+        }
+        if (vertCollision) {
+          this.velocity.y *= -1;
+        }
+      }
+      return null;
+    };
 
     Ball.prototype.onCollisionExit = function(other) {};
 
