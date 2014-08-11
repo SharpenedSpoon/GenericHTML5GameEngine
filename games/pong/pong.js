@@ -618,7 +618,7 @@
     Ball.prototype.onKeyUp = function(key) {};
 
     Ball.prototype.onCollisionEnter = function(other) {
-      var center, centerOther, debugText, halfSize, halfSizeOther, horizCollision, vertCollision;
+      var angle, anglesOther, center, centerOther, collisionSide, debugText, halfSize, halfSizeOther, horizCollision, piFourths, vertCollision;
       horizCollision = false;
       vertCollision = false;
       if (other.collisionGroup === 'player') {
@@ -638,40 +638,78 @@
           x: other.x + halfSizeOther.width,
           y: other.y + halfSizeOther.height
         };
+        anglesOther = {
+          topLeft: Math.atan2(halfSizeOther.height, -1 * halfSizeOther.width),
+          topRight: Math.atan2(halfSizeOther.height, halfSizeOther.width),
+          bottomRight: Math.atan2(-1 * halfSizeOther.height, halfSizeOther.width),
+          bottomLeft: Math.atan2(-1 * halfSizeOther.height, -1 * halfSizeOther.width)
+        };
+        console.log(anglesOther);
         debugText = 'Collision: ' + this.name + ' <-> ' + other.name + ' ';
-        if (centerOther.x <= center.x) {
-          horizCollision = true;
-          debugText += '...on left ';
-        }
-        if (centerOther.x >= center.x) {
+        collisionSide = '';
+        angle = Math.atan2(centerOther.y - center.y, centerOther.x - center.x);
+        debugText += '...angle: ' + angle + ' ';
+        piFourths = 0.25 * Math.PI;
+        if (angle >= anglesOther.bottomRight && angle < anglesOther.topRight) {
           horizCollision = true;
           debugText += '...on right ';
-        }
-        if (centerOther.y >= center.y) {
-          vertCollision = false;
+          collisionSide = 'right';
+        } else if (angle >= anglesOther.topRight && angle < anglesOther.topLeft) {
+          vertCollision = true;
           debugText += '...on top ';
-        }
-        if (centerOther.y <= center.y) {
-          vertCollision = false;
+          collisionSide = 'top';
+        } else if (angle >= anglesOther.bottomLeft && angle < anglesOther.bottomRight) {
+          vertCollision = true;
           debugText += '...on bottom ';
+          collisionSide = 'bottom';
+        } else if (angle >= anglesOther.topLeft || angle < anglesOther.bottomLeft) {
+          horizCollision = true;
+          debugText += '...on left ';
+          collisionSide = 'left';
         }
-        if (horizCollision && vertCollision) {
-          if (this.x - velocity.x >= other.x && this.x - velocity.x <= other.x + other.width) {
-            horizCollision = false;
-            debugText += '...got rid of horiz ';
-          }
-          if (this.y - velocity.y >= other.y && this.y - velocity.y <= other.y + other.height) {
-            vertCollision = false;
-            debugText += '...got rid of vert ';
-          }
-          if (!horizCollision && !vertCollision) {
-            horizCollision = true;
-            vertCollision = true;
-            debugText += '...got rid of too many things- put it back put it back oh shhiiiiiii';
-          }
-        }
+
+        /*
+        			 * figure out where the other object is
+        			if centerOther.x <= center.x # other object is to the left
+        				horizCollision = true
+        				debugText += '...on left '
+        			if centerOther.x >= center.x # other object is to the right
+        				horizCollision = true
+        				debugText += '...on right '
+        			if centerOther.y <= center.y # other object is to the top
+        				vertCollision = true
+        				debugText += '...on top '
+        			if centerOther.y >= center.y # other object is to the bottom
+        				vertCollision = true
+        				debugText += '...on bottom '
+        
+        			console.log horizCollision
+        			console.log vertCollision
+        			 * if both types of collisions were found, determine
+        			 * if one were more predominant
+        			if horizCollision && vertCollision
+        				 * if we backed off the horizontal would we still
+        				 * have a horizontal collision? If so, that's bad.
+        				 * which means that this should only be a vertical
+        				 * collision
+        				if Math.abs(centerOther.x - center.x) >= 0.9 * halfSizeOther.width
+        					horizCollision = false
+        					debugText += '...got rid of horiz '
+        
+        				if Math.abs(centerOther.y - center.y) >= 0.9 * halfSizeOther.height
+        					vertCollision = false
+        					debugText += '...got rid of vert '
+        
+        				 * sanity check: if we just got rid of both the
+        				 * horiz and the vert collisions, then let's just
+        				 * put them both back and assume (or at leas pretend)
+        				 * it's a diagonal collision.
+        				if ! horizCollision && ! vertCollision
+        					horizCollision = true
+        					vertCollision = true
+        					debugText += '...got rid of too many things- put it back put it back oh shhiiiiiii'
+         */
         console.log(debugText);
-        paused = true;
         if (horizCollision) {
           this.velocity.x *= -1;
         }

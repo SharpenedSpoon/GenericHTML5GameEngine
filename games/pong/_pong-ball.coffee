@@ -90,8 +90,38 @@ class Ball extends GameObject
 				x: other.x + halfSizeOther.width
 				y: other.y + halfSizeOther.height
 			}
+			anglesOther = {
+				topLeft:     Math.atan2(halfSizeOther.height, -1 * halfSizeOther.width)
+				topRight:    Math.atan2(halfSizeOther.height, halfSizeOther.width)
+				bottomRight: Math.atan2(-1 * halfSizeOther.height, halfSizeOther.width)
+				bottomLeft:  Math.atan2(-1 * halfSizeOther.height, -1 * halfSizeOther.width)
+			}
+			console.log anglesOther
 			debugText = 'Collision: ' + @name + ' <-> ' + other.name + ' ';
 
+			collisionSide = ''
+			angle = Math.atan2(centerOther.y - center.y, centerOther.x - center.x)
+			debugText += '...angle: ' + angle + ' '
+			piFourths = 0.25 * Math.PI
+			if angle >= anglesOther.bottomRight && angle < anglesOther.topRight
+				horizCollision = true
+				debugText += '...on right '
+				collisionSide = 'right'
+			else if angle >= anglesOther.topRight && angle < anglesOther.topLeft
+				vertCollision = true
+				debugText += '...on top '
+				collisionSide = 'top'
+			else if angle >= anglesOther.bottomLeft && angle < anglesOther.bottomRight
+				vertCollision = true
+				debugText += '...on bottom '
+				collisionSide = 'bottom'
+			else if angle >= anglesOther.topLeft || angle < anglesOther.bottomLeft
+				horizCollision = true
+				debugText += '...on left '
+				collisionSide = 'left'
+
+
+			###
 			# figure out where the other object is
 			if centerOther.x <= center.x # other object is to the left
 				horizCollision = true
@@ -100,12 +130,14 @@ class Ball extends GameObject
 				horizCollision = true
 				debugText += '...on right '
 			if centerOther.y <= center.y # other object is to the top
-				vertCollision = false
+				vertCollision = true
 				debugText += '...on top '
 			if centerOther.y >= center.y # other object is to the bottom
-				vertCollision = false
+				vertCollision = true
 				debugText += '...on bottom '
 
+			console.log horizCollision
+			console.log vertCollision
 			# if both types of collisions were found, determine
 			# if one were more predominant
 			if horizCollision && vertCollision
@@ -113,11 +145,11 @@ class Ball extends GameObject
 				# have a horizontal collision? If so, that's bad.
 				# which means that this should only be a vertical
 				# collision
-				if @x - velocity.x >= other.x && @x - velocity.x <= other.x + other.width
+				if Math.abs(centerOther.x - center.x) >= 0.9 * halfSizeOther.width
 					horizCollision = false
 					debugText += '...got rid of horiz '
 
-				if @y - velocity.y >= other.y && @y - velocity.y <= other.y + other.height
+				if Math.abs(centerOther.y - center.y) >= 0.9 * halfSizeOther.height
 					vertCollision = false
 					debugText += '...got rid of vert '
 
@@ -129,9 +161,11 @@ class Ball extends GameObject
 					horizCollision = true
 					vertCollision = true
 					debugText += '...got rid of too many things- put it back put it back oh shhiiiiiii'
+			###
+
 
 			console.log debugText
-			paused = true
+			#paused = true
 
 
 			@velocity.x *= -1 if horizCollision
