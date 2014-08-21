@@ -23,3 +23,15 @@ drawPolygon = (vertexArray, color = '#000000') ->
 
 drawText = (txt, x, y) ->
 	context.fillText(txt, x, y)
+
+drawCircle = (x, y, radius, color = '#000000', fill = false, lineWidth = 1) ->
+	context.beginPath()
+	context.arc(x, y, radius, (Math.PI/180)*0, (Math.PI/180)*360, true)
+	if fill
+		context.fillStyle = color
+		context.fill()
+	else
+		context.lineWidth = lineWidth
+		context.strokeStyle = color
+		context.stroke()
+	context.closePath()

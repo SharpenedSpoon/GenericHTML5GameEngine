@@ -1,3 +1,14 @@
+###
+
+This is an example game loop. Each game MUST have its
+own unique game loop that has each of these methods and,
+at minimum, calls the various awake/start/update/etc
+methods in each gameobject. Some games might not
+need the collision detection, but since so many games do,
+it is included in this example.
+
+###
+
 createGameObjects = () ->
 	return null
 

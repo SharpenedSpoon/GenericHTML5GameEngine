@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
+  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -75,6 +75,29 @@
 
   drawText = function(txt, x, y) {
     return context.fillText(txt, x, y);
+  };
+
+  drawCircle = function(x, y, radius, color, fill, lineWidth) {
+    if (color == null) {
+      color = '#000000';
+    }
+    if (fill == null) {
+      fill = false;
+    }
+    if (lineWidth == null) {
+      lineWidth = 1;
+    }
+    context.beginPath();
+    context.arc(x, y, radius, (Math.PI / 180) * 0, (Math.PI / 180) * 360, true);
+    if (fill) {
+      context.fillStyle = color;
+      context.fill();
+    } else {
+      context.lineWidth = lineWidth;
+      context.strokeStyle = color;
+      context.stroke();
+    }
+    return context.closePath();
   };
 
 
