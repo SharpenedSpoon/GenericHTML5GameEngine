@@ -344,7 +344,7 @@
    */
 
   CodebotGameObject = (function(_super) {
-    var center, color, getInfo, height, keysPressed, width;
+    var center, color, height, keysPressed, width;
 
     __extends(CodebotGameObject, _super);
 
@@ -359,6 +359,7 @@
     center = null;
 
     function CodebotGameObject(name) {
+      this.getInfo = __bind(this.getInfo, this);
       this.drawSelf = __bind(this.drawSelf, this);
       this.onKeyUp = __bind(this.onKeyUp, this);
       this.onKeyDown = __bind(this.onKeyDown, this);
@@ -419,15 +420,16 @@
       return drawSquare(this.x, this.y, this.width, this.height, this.color);
     };
 
-    getInfo = function() {
+    CodebotGameObject.prototype.getInfo = function() {
       return {
-        name: CodebotGameObject.name,
-        x: CodebotGameObject.x,
-        y: CodebotGameObject.y,
-        center: CodebotGameObject.center,
-        width: CodebotGameObject.width,
-        height: CodebotGameObject.height,
-        collisionGroup: CodebotGameObject.collisionGroup
+        name: this.name,
+        x: this.x,
+        y: this.y,
+        center: this.center,
+        width: this.width,
+        height: this.height,
+        collisionGroup: this.collisionGroup,
+        color: this.color
       };
     };
 
@@ -459,6 +461,7 @@
       this.distance = __bind(this.distance, this);
       this.stayOnScreen = __bind(this.stayOnScreen, this);
       this.drawSightRadius = __bind(this.drawSightRadius, this);
+      this.attack = __bind(this.attack, this);
       this.lookAround = __bind(this.lookAround, this);
       this.moveLeft = __bind(this.moveLeft, this);
       this.moveRight = __bind(this.moveRight, this);
@@ -505,7 +508,11 @@
       }
       if (this.keysPressed[KeyCode.L]) {
         this.lookAround();
-        return this.keysPressed[KeyCode.L] = false;
+        this.keysPressed[KeyCode.L] = false;
+      }
+      if (this.keysPressed[KeyCode.M]) {
+        this.attack();
+        return this.keysPressed[KeyCode.M] = false;
       }
     };
 
@@ -522,7 +529,10 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           o = _ref[_i];
-          _results.push(drawLine(this.center.x, this.center.y, o.center.x, o.center.y));
+          drawLine(this.center.x, this.center.y, o.center.x, o.center.y);
+          context.globalAlpha = 0.5;
+          drawSquare(o.x, o.y, o.width, o.height, o.color);
+          _results.push(context.globalAlpha = 1);
         }
         return _results;
       }
@@ -598,13 +608,14 @@
         o = gameObjects[_i];
         if (o.enabled && o !== this) {
           if (this.distance(this.x, this.y, o.x, o.y) < this.sightRadius) {
-            console.log(o.name);
             this.objectsSighted.push(o.getInfo());
           }
         }
       }
       return null;
     };
+
+    Robot.prototype.attack = function() {};
 
     Robot.prototype.drawSightRadius = function() {
       return drawCircle(this.center.x, this.center.y, this.sightRadius, '#11aa00', false, 3);
@@ -730,6 +741,8 @@
     var f1, r1;
     r1 = new Robot("Robot 1");
     f1 = new Flag("Flag 1");
+    f1.x = 50;
+    f1.y = 50;
     return null;
   };
 

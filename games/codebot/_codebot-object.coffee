@@ -64,7 +64,7 @@ class CodebotGameObject extends GameObject
 
 	# used to give other objects 'public' info
 	# about this object in its current state.
-	getInfo = () =>
+	getInfo: () =>
 		return {
 			name: @name
 			x: @x
@@ -73,4 +73,5 @@ class CodebotGameObject extends GameObject
 			width: @width
 			height: @height
 			collisionGroup: @collisionGroup
+			color: @color
 		}

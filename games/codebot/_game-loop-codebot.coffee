@@ -1,6 +1,8 @@
 createGameObjects = () ->
 	r1 = new Robot("Robot 1")
 	f1 = new Flag("Flag 1")
+	f1.x = 50
+	f1.y = 50
 	return null
 
 awake = () ->

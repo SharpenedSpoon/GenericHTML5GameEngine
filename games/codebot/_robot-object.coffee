@@ -47,6 +47,10 @@ class Robot extends CodebotGameObject
 			@lookAround()
 			@keysPressed[KeyCode.L] = false
 
+		if @keysPressed[KeyCode.M]
+			@attack()
+			@keysPressed[KeyCode.M] = false
+
 	render: (dt) =>
 		super dt
 		@drawSelf()
@@ -65,6 +69,9 @@ class Robot extends CodebotGameObject
 		if @objectsSighted != []
 			for o in @objectsSighted
 				drawLine(@center.x, @center.y, o.center.x, o.center.y)
+				context.globalAlpha = 0.5
+				drawSquare(o.x, o.y, o.width, o.height, o.color)
+				context.globalAlpha = 1
 
 
 	onCollisionEnter: (other) =>
@@ -128,10 +135,12 @@ class Robot extends CodebotGameObject
 				if @distance(@x, @y, o.x, o.y) < @sightRadius
 					# other obj is in range - add its public
 					# info to our objectsSighted array
-					console.log o.name
 					@objectsSighted.push(o.getInfo())
 
 		return null
+
+	attack: () =>
+
 
 
 
