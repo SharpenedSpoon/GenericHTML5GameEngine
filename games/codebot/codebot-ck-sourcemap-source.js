@@ -497,6 +497,7 @@
         name: CodebotGameObject.name,
         x: CodebotGameObject.x,
         y: CodebotGameObject.y,
+        center: CodebotGameObject.center,
         width: CodebotGameObject.width,
         height: CodebotGameObject.height,
         collisionGroup: CodebotGameObject.collisionGroup
@@ -528,6 +529,7 @@
     speed = null;
 
     function Robot(name) {
+      this.distance = __bind(this.distance, this);
       this.stayOnScreen = __bind(this.stayOnScreen, this);
       this.drawSightRadius = __bind(this.drawSightRadius, this);
       this.lookAround = __bind(this.lookAround, this);
@@ -545,7 +547,7 @@
       this.color = '#000';
       this.width = 10;
       this.height = 10;
-      this.sightRadius = 40;
+      this.sightRadius = 80;
       this.objectsSighted = [];
       this.collisionGroup = "robot";
       this.speed = 10;
@@ -626,36 +628,38 @@
 
     Robot.prototype.moveUp = function() {
       this.y -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveDown = function() {
       this.y += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveRight = function() {
       this.x += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveLeft = function() {
       this.x -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.lookAround = function() {
-      var o, _i, _len, _results;
-      _results = [];
+      var o, _i, _len;
+      this.objectsSighted = [];
       for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
         o = gameObjects[_i];
-        if (o.enabled) {
-          _results.push(o.render(dt));
-        } else {
-          _results.push(void 0);
+        if (this.distance(this.x, this.y, o.x, o.y) < this.sightRadius) {
+          this.objectsSighted.push(o.getInfo());
         }
       }
-      return _results;
+      return null;
     };
 
     Robot.prototype.drawSightRadius = function() {
@@ -665,6 +669,10 @@
     Robot.prototype.stayOnScreen = function() {
       this.x = Math.min(canvas.width - this.width, Math.max(0, this.x));
       return this.y = Math.min(canvas.height - this.height, Math.max(0, this.y));
+    };
+
+    Robot.prototype.distance = function(x1, y1, x2, y2) {
+      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     };
 
     return Robot;
@@ -1169,6 +1177,7 @@
         name: CodebotGameObject.name,
         x: CodebotGameObject.x,
         y: CodebotGameObject.y,
+        center: CodebotGameObject.center,
         width: CodebotGameObject.width,
         height: CodebotGameObject.height,
         collisionGroup: CodebotGameObject.collisionGroup
@@ -1200,6 +1209,7 @@
     speed = null;
 
     function Robot(name) {
+      this.distance = __bind(this.distance, this);
       this.stayOnScreen = __bind(this.stayOnScreen, this);
       this.drawSightRadius = __bind(this.drawSightRadius, this);
       this.lookAround = __bind(this.lookAround, this);
@@ -1217,7 +1227,7 @@
       this.color = '#000';
       this.width = 10;
       this.height = 10;
-      this.sightRadius = 40;
+      this.sightRadius = 80;
       this.objectsSighted = [];
       this.collisionGroup = "robot";
       this.speed = 10;
@@ -1298,36 +1308,38 @@
 
     Robot.prototype.moveUp = function() {
       this.y -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveDown = function() {
       this.y += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveRight = function() {
       this.x += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveLeft = function() {
       this.x -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.lookAround = function() {
-      var o, _i, _len, _results;
-      _results = [];
+      var o, _i, _len;
+      this.objectsSighted = [];
       for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
         o = gameObjects[_i];
-        if (o.enabled) {
-          _results.push(o.render(dt));
-        } else {
-          _results.push(void 0);
+        if (this.distance(this.x, this.y, o.x, o.y) < this.sightRadius) {
+          this.objectsSighted.push(o.getInfo());
         }
       }
-      return _results;
+      return null;
     };
 
     Robot.prototype.drawSightRadius = function() {
@@ -1337,6 +1349,10 @@
     Robot.prototype.stayOnScreen = function() {
       this.x = Math.min(canvas.width - this.width, Math.max(0, this.x));
       return this.y = Math.min(canvas.height - this.height, Math.max(0, this.y));
+    };
+
+    Robot.prototype.distance = function(x1, y1, x2, y2) {
+      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     };
 
     return Robot;

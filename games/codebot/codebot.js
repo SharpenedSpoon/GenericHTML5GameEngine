@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, GameObject, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
+  var CodebotGameObject, Debug, Flag, GameObject, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -332,79 +332,6 @@
 
   /*
   --------------------------------------------
-       Begin _game-loop-codebot.coffee
-  --------------------------------------------
-   */
-
-  createGameObjects = function() {
-    var r1;
-    r1 = new Robot("Robot 1");
-    return null;
-  };
-
-  awake = function() {
-    var o, _i, _len;
-    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o = gameObjects[_i];
-      if (o.enabled) {
-        o.awake();
-      }
-    }
-    return null;
-  };
-
-  start = function() {
-    var o, _i, _len;
-    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o = gameObjects[_i];
-      if (o.enabled) {
-        o.start();
-      }
-    }
-    return null;
-  };
-
-  update = function(dt) {
-    var o, _i, _len;
-    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o = gameObjects[_i];
-      if (o.enabled) {
-        o.update(dt);
-      }
-    }
-    return null;
-  };
-
-  fixedUpdate = function(step) {
-    var o1, oldCollide, _i, _len;
-    oldCollide = false;
-    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o1 = gameObjects[_i];
-      if (o1.enabled) {
-        o1.fixedUpdate(step);
-      }
-    }
-    return null;
-  };
-
-  render = function(dt) {
-    var o, _i, _len;
-    context.save();
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.restore();
-    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
-      o = gameObjects[_i];
-      if (o.enabled) {
-        o.render(dt);
-      }
-    }
-    return null;
-  };
-
-
-  /*
-  --------------------------------------------
        Begin _codebot-object.coffee
   --------------------------------------------
    */
@@ -497,6 +424,7 @@
         name: CodebotGameObject.name,
         x: CodebotGameObject.x,
         y: CodebotGameObject.y,
+        center: CodebotGameObject.center,
         width: CodebotGameObject.width,
         height: CodebotGameObject.height,
         collisionGroup: CodebotGameObject.collisionGroup
@@ -528,6 +456,7 @@
     speed = null;
 
     function Robot(name) {
+      this.distance = __bind(this.distance, this);
       this.stayOnScreen = __bind(this.stayOnScreen, this);
       this.drawSightRadius = __bind(this.drawSightRadius, this);
       this.lookAround = __bind(this.lookAround, this);
@@ -545,7 +474,7 @@
       this.color = '#000';
       this.width = 10;
       this.height = 10;
-      this.sightRadius = 40;
+      this.sightRadius = 80;
       this.objectsSighted = [];
       this.collisionGroup = "robot";
       this.speed = 10;
@@ -572,17 +501,31 @@
       }
       if (this.keysPressed[KeyCode.D]) {
         this.moveRight();
-        return this.keysPressed[KeyCode.D] = false;
+        this.keysPressed[KeyCode.D] = false;
+      }
+      if (this.keysPressed[KeyCode.L]) {
+        this.lookAround();
+        return this.keysPressed[KeyCode.L] = false;
       }
     };
 
     Robot.prototype.render = function(dt) {
+      var o, _i, _len, _ref, _results;
+      Robot.__super__.render.call(this, dt);
       this.drawSelf();
       this.drawSightRadius();
       if (this.inCollision) {
         drawPolygon([[this.x - 0.5, this.y - 0.5], [this.x - 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y - 0.5]], '#ff0000');
       }
-      return Robot.__super__.render.call(this, dt);
+      if (this.objectsSighted !== []) {
+        _ref = this.objectsSighted;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          o = _ref[_i];
+          _results.push(drawLine(this.center.x, this.center.y, o.center.x, o.center.y));
+        }
+        return _results;
+      }
     };
 
     Robot.prototype.onCollisionEnter = function(other) {
@@ -626,36 +569,41 @@
 
     Robot.prototype.moveUp = function() {
       this.y -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveDown = function() {
       this.y += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveRight = function() {
       this.x += this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.moveLeft = function() {
       this.x -= this.speed;
-      return this.stayOnScreen();
+      this.stayOnScreen();
+      return null;
     };
 
     Robot.prototype.lookAround = function() {
-      var o, _i, _len, _results;
-      _results = [];
+      var o, _i, _len;
+      this.objectsSighted = [];
       for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
         o = gameObjects[_i];
-        if (o.enabled) {
-          _results.push(o.render(dt));
-        } else {
-          _results.push(void 0);
+        if (o.enabled && o !== this) {
+          if (this.distance(this.x, this.y, o.x, o.y) < this.sightRadius) {
+            console.log(o.name);
+            this.objectsSighted.push(o.getInfo());
+          }
         }
       }
-      return _results;
+      return null;
     };
 
     Robot.prototype.drawSightRadius = function() {
@@ -667,9 +615,183 @@
       return this.y = Math.min(canvas.height - this.height, Math.max(0, this.y));
     };
 
+    Robot.prototype.distance = function(x1, y1, x2, y2) {
+      return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    };
+
     return Robot;
 
   })(CodebotGameObject);
+
+
+  /*
+  --------------------------------------------
+       Begin _flag-object.coffee
+  --------------------------------------------
+   */
+
+  Flag = (function(_super) {
+    var inCollision, speed;
+
+    __extends(Flag, _super);
+
+    inCollision = null;
+
+    speed = null;
+
+    function Flag(name) {
+      this.stayOnScreen = __bind(this.stayOnScreen, this);
+      this.moveLeft = __bind(this.moveLeft, this);
+      this.moveRight = __bind(this.moveRight, this);
+      this.moveDown = __bind(this.moveDown, this);
+      this.moveUp = __bind(this.moveUp, this);
+      this.render = __bind(this.render, this);
+      this.update = __bind(this.update, this);
+      this.awake = __bind(this.awake, this);
+      Flag.__super__.constructor.call(this, name);
+      this.color = '#aa0000';
+      this.width = 10;
+      this.height = 10;
+      this.collisionGroup = "flag";
+      this.speed = 10;
+    }
+
+    Flag.prototype.awake = function() {
+      Flag.__super__.awake.apply(this, arguments);
+      return this.stayOnScreen();
+    };
+
+    Flag.prototype.update = function(dt) {
+      Flag.__super__.update.call(this, dt);
+      if (this.keysPressed[KeyCode.Up]) {
+        this.moveUp();
+        this.keysPressed[KeyCode.Up] = false;
+      }
+      if (this.keysPressed[KeyCode.Left]) {
+        this.moveLeft();
+        this.keysPressed[KeyCode.Left] = false;
+      }
+      if (this.keysPressed[KeyCode.Down]) {
+        this.moveDown();
+        this.keysPressed[KeyCode.Down] = false;
+      }
+      if (this.keysPressed[KeyCode.Right]) {
+        this.moveRight();
+        return this.keysPressed[KeyCode.Right] = false;
+      }
+    };
+
+    Flag.prototype.render = function(dt) {
+      Flag.__super__.render.call(this, dt);
+      return this.drawSelf();
+    };
+
+    Flag.prototype.moveUp = function() {
+      this.y -= this.speed;
+      this.stayOnScreen();
+      return null;
+    };
+
+    Flag.prototype.moveDown = function() {
+      this.y += this.speed;
+      this.stayOnScreen();
+      return null;
+    };
+
+    Flag.prototype.moveRight = function() {
+      this.x += this.speed;
+      this.stayOnScreen();
+      return null;
+    };
+
+    Flag.prototype.moveLeft = function() {
+      this.x -= this.speed;
+      this.stayOnScreen();
+      return null;
+    };
+
+    Flag.prototype.stayOnScreen = function() {
+      this.x = Math.min(canvas.width - this.width, Math.max(0, this.x));
+      return this.y = Math.min(canvas.height - this.height, Math.max(0, this.y));
+    };
+
+    return Flag;
+
+  })(CodebotGameObject);
+
+
+  /*
+  --------------------------------------------
+       Begin _game-loop-codebot.coffee
+  --------------------------------------------
+   */
+
+  createGameObjects = function() {
+    var f1, r1;
+    r1 = new Robot("Robot 1");
+    f1 = new Flag("Flag 1");
+    return null;
+  };
+
+  awake = function() {
+    var o, _i, _len;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
+      if (o.enabled) {
+        o.awake();
+      }
+    }
+    return null;
+  };
+
+  start = function() {
+    var o, _i, _len;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
+      if (o.enabled) {
+        o.start();
+      }
+    }
+    return null;
+  };
+
+  update = function(dt) {
+    var o, _i, _len;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
+      if (o.enabled) {
+        o.update(dt);
+      }
+    }
+    return null;
+  };
+
+  fixedUpdate = function(step) {
+    var o1, oldCollide, _i, _len;
+    oldCollide = false;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o1 = gameObjects[_i];
+      if (o1.enabled) {
+        o1.fixedUpdate(step);
+      }
+    }
+    return null;
+  };
+
+  render = function(dt) {
+    var o, _i, _len;
+    context.save();
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.restore();
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
+      if (o.enabled) {
+        o.render(dt);
+      }
+    }
+    return null;
+  };
 
 
   /*
@@ -679,6 +801,3 @@
    */
 
 }).call(this);
-
-
-//# sourceMappingURL=codebot-ck-sourcemap-source.map

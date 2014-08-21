@@ -69,6 +69,7 @@ class CodebotGameObject extends GameObject
 			name: @name
 			x: @x
 			y: @y
+			center: @center
 			width: @width
 			height: @height
 			collisionGroup: @collisionGroup

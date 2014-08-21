@@ -15,7 +15,7 @@ class Robot extends CodebotGameObject
 		@color = '#000'
 		@width = 10
 		@height = 10
-		@sightRadius = 40
+		@sightRadius = 80
 		@objectsSighted = []
 
 		@collisionGroup = "robot"
@@ -43,7 +43,12 @@ class Robot extends CodebotGameObject
 			@moveRight()
 			@keysPressed[KeyCode.D] = false
 
+		if @keysPressed[KeyCode.L]
+			@lookAround()
+			@keysPressed[KeyCode.L] = false
+
 	render: (dt) =>
+		super dt
 		@drawSelf()
 		@drawSightRadius()
 
@@ -55,7 +60,12 @@ class Robot extends CodebotGameObject
 				[@x+@width+0.5,@y+@height+0.5]
 				[@x+@width+0.5,@y-0.5]
 			], '#ff0000')
-		super dt
+
+		# temp function. draw lines to sighted objects
+		if @objectsSighted != []
+			for o in @objectsSighted
+				drawLine(@center.x, @center.y, o.center.x, o.center.y)
+
 
 	onCollisionEnter: (other) =>
 		@inCollision = true
@@ -94,19 +104,34 @@ class Robot extends CodebotGameObject
 	moveUp: () =>
 		@y -= @speed
 		@stayOnScreen()
+		return null
 	moveDown: () =>
 		@y += @speed
 		@stayOnScreen()
+		return null
 	moveRight: () =>
 		@x += @speed
 		@stayOnScreen()
+		return null
 	moveLeft: () =>
 		@x -= @speed
 		@stayOnScreen()
+		return null
 
 	lookAround: () =>
+		# clear out any previously spotted objects
+		@objectsSighted = []
+
 		for o in gameObjects
-			o.render(dt) if o.enabled
+			if o.enabled && o != this
+				# is the other object within sight radius?
+				if @distance(@x, @y, o.x, o.y) < @sightRadius
+					# other obj is in range - add its public
+					# info to our objectsSighted array
+					console.log o.name
+					@objectsSighted.push(o.getInfo())
+
+		return null
 
 
 
@@ -122,3 +147,6 @@ class Robot extends CodebotGameObject
 	stayOnScreen: () =>
 		@x = Math.min(canvas.width - @width, Math.max(0, @x))
 		@y = Math.min(canvas.height - @height, Math.max(0, @y))
+
+	distance: (x1, y1, x2, y2) =>
+		return Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
