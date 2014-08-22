@@ -21,3 +21,14 @@ canvas {
 	display: inline-block;
 	padding: 13px;
 }
+
+#game-log-container {
+	position: relative;
+}
+
+#fatality {
+	position: absolute;
+	bottom: 100%;
+	margin-bottom: 13px;
+	left: 50px;
+}

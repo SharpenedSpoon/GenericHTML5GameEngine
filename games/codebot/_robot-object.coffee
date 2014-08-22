@@ -165,8 +165,13 @@ class Robot extends CodebotGameObject
 			for o in killedArray
 				if o.collisionGroup == 'flag'
 					GameLog(@name + ' captured the flag!!')
+					document.getElementById('game-running').checked = false
 				else
-					GameLog(@name + ' killed ' + o.name)
+					document.getElementById('game-running').checked = false
+					$('#game-log').prepend('<div id="fatality"><img src="games/codebot/images/fatality.gif" /></div>')
+					setTimeout(() ->
+						$('#fatality').remove()
+					, 4000)
 		console.log @name + ' attacks' + killedText
 		return null
 
