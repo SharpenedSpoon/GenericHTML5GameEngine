@@ -34,4 +34,5 @@ drawCircle = (x, y, radius, color = '#000000', fill = false, lineWidth = 1) ->
 		context.lineWidth = lineWidth
 		context.strokeStyle = color
 		context.stroke()
+		context.lineWidth = 1
 	context.closePath()

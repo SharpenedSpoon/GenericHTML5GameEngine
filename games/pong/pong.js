@@ -96,6 +96,7 @@
       context.lineWidth = lineWidth;
       context.strokeStyle = color;
       context.stroke();
+      context.lineWidth = 1;
     }
     return context.closePath();
   };

@@ -9,6 +9,7 @@ class Robot extends CodebotGameObject
 
 
 
+
 	constructor: (name) ->
 		super name
 
@@ -16,11 +17,11 @@ class Robot extends CodebotGameObject
 		@width = 10
 		@height = 10
 		@sightRadius = 80
+		@speed = 10
 		@objectsSighted = []
 
 		@collisionGroup = "robot"
 
-		@speed = 10
 
 
 	awake: () =>
@@ -140,8 +141,12 @@ class Robot extends CodebotGameObject
 		return null
 
 	attack: () =>
-
-
+		for o in gameObjects
+			if o.enabled && o != this
+				# if we're right on top of the other object, kill it
+				if @distance(@x, @y, o.x, o.y) < Math.max(@width, @height)
+					o.enabled = false
+		return null
 
 
 

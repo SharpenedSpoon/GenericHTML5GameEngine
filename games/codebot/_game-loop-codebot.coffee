@@ -1,6 +1,13 @@
 createGameObjects = () ->
-	r1 = new Robot("Robot 1")
+	#r1 = new Robot("Robot 1")
 	f1 = new Flag("Flag 1")
+
+	players = []
+	for i in [1..3]
+		thisPlayer = new IanRobot("Ian")
+		thisPlayer.x = Math.floor(Math.random() * 40) * 10
+		thisPlayer.y = Math.floor(Math.random() * 40) * 10
+
 	f1.x = 50
 	f1.y = 50
 	return null
@@ -44,3 +51,21 @@ render = (dt) ->
 	for o in gameObjects
 		o.render(dt) if o.enabled
 	return null
+
+
+roundNumber = 0
+
+$(window).on 'keyup', (e) ->
+	if e.which == KeyCode.Space
+		everyoneTakeTurns()
+	return null
+
+
+everyoneTakeTurns = () ->
+	roundNumber++
+	console.log roundNumber
+	for o in gameObjects
+		if o.collisionGroup == 'robot'
+			o.takeTurn(roundNumber)
+
+setInterval(everyoneTakeTurns(), 100)

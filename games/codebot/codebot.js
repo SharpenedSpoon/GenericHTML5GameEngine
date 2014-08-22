@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, Flag, GameObject, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
+  var CodebotGameObject, Debug, Flag, GameObject, IanRobot, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -96,6 +96,7 @@
       context.lineWidth = lineWidth;
       context.strokeStyle = color;
       context.stroke();
+      context.lineWidth = 1;
     }
     return context.closePath();
   };
@@ -478,9 +479,9 @@
       this.width = 10;
       this.height = 10;
       this.sightRadius = 80;
+      this.speed = 10;
       this.objectsSighted = [];
       this.collisionGroup = "robot";
-      this.speed = 10;
     }
 
     Robot.prototype.awake = function() {
@@ -615,7 +616,18 @@
       return null;
     };
 
-    Robot.prototype.attack = function() {};
+    Robot.prototype.attack = function() {
+      var o, _i, _len;
+      for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+        o = gameObjects[_i];
+        if (o.enabled && o !== this) {
+          if (this.distance(this.x, this.y, o.x, o.y) < Math.max(this.width, this.height)) {
+            o.enabled = false;
+          }
+        }
+      }
+      return null;
+    };
 
     Robot.prototype.drawSightRadius = function() {
       return drawCircle(this.center.x, this.center.y, this.sightRadius, '#11aa00', false, 3);
@@ -733,14 +745,83 @@
 
   /*
   --------------------------------------------
+       Begin _ian-robot-object.coffee
+  --------------------------------------------
+   */
+
+  IanRobot = (function(_super) {
+    __extends(IanRobot, _super);
+
+    function IanRobot() {
+      this.takeTurn = __bind(this.takeTurn, this);
+      return IanRobot.__super__.constructor.apply(this, arguments);
+    }
+
+    IanRobot.prototype.takeTurn = function(roundNumber) {
+      var dx, dy, previousObjectsSighted, randDir;
+      previousObjectsSighted = this.objectsSighted;
+      if (this.objectsSighted.length === 0) {
+        if (roundNumber % 3 === 0) {
+          this.lookAround();
+        } else {
+          randDir = [1, 2, 3, 4];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveUp();
+              break;
+            case 2:
+              this.moveRight();
+              break;
+            case 3:
+              this.moveDown();
+              break;
+            case 4:
+              this.moveLeft();
+          }
+        }
+      } else {
+        dx = this.objectsSighted[0].x - this.x;
+        dy = this.objectsSighted[0].y - this.y;
+        if (dx === 0 && dy === 0) {
+          this.attack();
+        } else if (Math.abs(dy) > Math.abs(dx)) {
+          if (dy > 0) {
+            this.moveDown();
+          } else if (dy < 0) {
+            this.moveUp();
+          }
+        } else {
+          if (dx > 0) {
+            this.moveRight();
+          } else if (dx < 0) {
+            this.moveLeft();
+          }
+        }
+      }
+      return null;
+    };
+
+    return IanRobot;
+
+  })(Robot);
+
+
+  /*
+  --------------------------------------------
        Begin _game-loop-codebot.coffee
   --------------------------------------------
    */
 
   createGameObjects = function() {
-    var f1, r1;
-    r1 = new Robot("Robot 1");
+    var f1, i, players, thisPlayer, _i;
     f1 = new Flag("Flag 1");
+    players = [];
+    for (i = _i = 1; _i <= 3; i = ++_i) {
+      thisPlayer = new IanRobot("Ian");
+      thisPlayer.x = Math.floor(Math.random() * 40) * 10;
+      thisPlayer.y = Math.floor(Math.random() * 40) * 10;
+    }
     f1.x = 50;
     f1.y = 50;
     return null;
@@ -805,6 +886,33 @@
     }
     return null;
   };
+
+  roundNumber = 0;
+
+  $(window).on('keyup', function(e) {
+    if (e.which === KeyCode.Space) {
+      everyoneTakeTurns();
+    }
+    return null;
+  });
+
+  everyoneTakeTurns = function() {
+    var o, _i, _len, _results;
+    roundNumber++;
+    console.log(roundNumber);
+    _results = [];
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
+      if (o.collisionGroup === 'robot') {
+        _results.push(o.takeTurn(roundNumber));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+
+  setInterval(everyoneTakeTurns(), 100);
 
 
   /*

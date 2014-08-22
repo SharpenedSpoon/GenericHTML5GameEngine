@@ -4,6 +4,10 @@
 # @codekit-prepend "_robot-object.coffee";
 # @codekit-prepend "_flag-object.coffee";
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Robots!
+# @codekit-prepend "_ian-robot-object.coffee";
+
 
 
 # @codekit-prepend "_game-loop-codebot.coffee";
