@@ -21,7 +21,7 @@ drawPolygon = (vertexArray, color = '#000000') ->
 	context.strokeStyle = color
 	context.stroke()
 
-drawText = (txt, x, y) ->
+drawText = (x, y, txt) ->
 	context.fillText(txt, x, y)
 
 drawCircle = (x, y, radius, color = '#000000', fill = false, lineWidth = 1) ->

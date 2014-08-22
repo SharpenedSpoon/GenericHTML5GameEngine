@@ -1,22 +1,22 @@
-class IanRobot extends Robot
+class DummyRobot extends Robot
 
 	takeTurn: (roundNumber) =>
 		# store the previously seen objects
 		previousObjectsSighted = @objectsSighted
 
+		# look around every 3 turns
+		if roundNumber % 3 == 0
+			@lookAround()
+
 		# if we don't see anything....
 		if @objectsSighted.length == 0
-			# look around every 3 turns
-			if roundNumber % 3 == 0
-				@lookAround()
-			else
-				randDir = [1, 2, 3, 4]
-				randDir = randDir[Math.floor(Math.random() * randDir.length)]
-				switch randDir
-					when 1 then @moveUp()
-					when 2 then @moveRight()
-					when 3 then @moveDown()
-					when 4 then @moveLeft()
+			randDir = [1, 2, 3, 4]
+			randDir = randDir[Math.floor(Math.random() * randDir.length)]
+			switch randDir
+				when 1 then @moveUp()
+				when 2 then @moveRight()
+				when 3 then @moveDown()
+				when 4 then @moveLeft()
 		else
 			# we have someone in sight
 			dx = @objectsSighted[0].x - @x

@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, Flag, GameObject, IanRobot, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
+  var CodebotGameObject, Debug, DummyRobot, Flag, GameObject, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -73,7 +73,7 @@
     return context.stroke();
   };
 
-  drawText = function(txt, x, y) {
+  drawText = function(x, y, txt) {
     return context.fillText(txt, x, y);
   };
 
@@ -522,6 +522,8 @@
       Robot.__super__.render.call(this, dt);
       this.drawSelf();
       this.drawSightRadius();
+      context.textAlign = 'center';
+      drawText(this.center.x, this.y + this.height + 10, this.name);
       if (this.inCollision) {
         drawPolygon([[this.x - 0.5, this.y - 0.5], [this.x - 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y + this.height + 0.5], [this.x + this.width + 0.5, this.y - 0.5]], '#ff0000');
       }
@@ -749,36 +751,35 @@
   --------------------------------------------
    */
 
-  IanRobot = (function(_super) {
-    __extends(IanRobot, _super);
+  DummyRobot = (function(_super) {
+    __extends(DummyRobot, _super);
 
-    function IanRobot() {
+    function DummyRobot() {
       this.takeTurn = __bind(this.takeTurn, this);
-      return IanRobot.__super__.constructor.apply(this, arguments);
+      return DummyRobot.__super__.constructor.apply(this, arguments);
     }
 
-    IanRobot.prototype.takeTurn = function(roundNumber) {
+    DummyRobot.prototype.takeTurn = function(roundNumber) {
       var dx, dy, previousObjectsSighted, randDir;
       previousObjectsSighted = this.objectsSighted;
+      if (roundNumber % 3 === 0) {
+        this.lookAround();
+      }
       if (this.objectsSighted.length === 0) {
-        if (roundNumber % 3 === 0) {
-          this.lookAround();
-        } else {
-          randDir = [1, 2, 3, 4];
-          randDir = randDir[Math.floor(Math.random() * randDir.length)];
-          switch (randDir) {
-            case 1:
-              this.moveUp();
-              break;
-            case 2:
-              this.moveRight();
-              break;
-            case 3:
-              this.moveDown();
-              break;
-            case 4:
-              this.moveLeft();
-          }
+        randDir = [1, 2, 3, 4];
+        randDir = randDir[Math.floor(Math.random() * randDir.length)];
+        switch (randDir) {
+          case 1:
+            this.moveUp();
+            break;
+          case 2:
+            this.moveRight();
+            break;
+          case 3:
+            this.moveDown();
+            break;
+          case 4:
+            this.moveLeft();
         }
       } else {
         dx = this.objectsSighted[0].x - this.x;
@@ -802,7 +803,7 @@
       return null;
     };
 
-    return IanRobot;
+    return DummyRobot;
 
   })(Robot);
 
@@ -818,7 +819,7 @@
     f1 = new Flag("Flag 1");
     players = [];
     for (i = _i = 1; _i <= 3; i = ++_i) {
-      thisPlayer = new IanRobot("Ian");
+      thisPlayer = new DummyRobot("Dummy");
       thisPlayer.x = Math.floor(Math.random() * 40) * 10;
       thisPlayer.y = Math.floor(Math.random() * 40) * 10;
     }
@@ -903,7 +904,7 @@
     _results = [];
     for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
       o = gameObjects[_i];
-      if (o.collisionGroup === 'robot') {
+      if (o.collisionGroup === 'robot' && o.enabled) {
         _results.push(o.takeTurn(roundNumber));
       } else {
         _results.push(void 0);
@@ -912,7 +913,18 @@
     return _results;
   };
 
-  setInterval(everyoneTakeTurns(), 100);
+  everyoneTakeRegularTurns = function() {
+    var intervalLength;
+    intervalLength = parseInt($('#interval-length').val());
+    if (document.getElementById('game-running').checked) {
+      everyoneTakeTurns();
+    }
+    return setTimeout(everyoneTakeRegularTurns, intervalLength);
+  };
+
+  $(function() {
+    return everyoneTakeRegularTurns();
+  });
 
 
   /*

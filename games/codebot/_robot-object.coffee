@@ -57,6 +57,9 @@ class Robot extends CodebotGameObject
 		@drawSelf()
 		@drawSightRadius()
 
+		context.textAlign = 'center'
+		drawText(@center.x, @y + @height + 10, @name )
+
 		if @inCollision
 			# draws a rectangle around the object
 			drawPolygon([

@@ -73,7 +73,7 @@
     return context.stroke();
   };
 
-  drawText = function(txt, x, y) {
+  drawText = function(x, y, txt) {
     return context.fillText(txt, x, y);
   };
 

@@ -4,7 +4,7 @@ createGameObjects = () ->
 
 	players = []
 	for i in [1..3]
-		thisPlayer = new IanRobot("Ian")
+		thisPlayer = new DummyRobot("Dummy")
 		thisPlayer.x = Math.floor(Math.random() * 40) * 10
 		thisPlayer.y = Math.floor(Math.random() * 40) * 10
 
@@ -65,7 +65,14 @@ everyoneTakeTurns = () ->
 	roundNumber++
 	console.log roundNumber
 	for o in gameObjects
-		if o.collisionGroup == 'robot'
+		if o.collisionGroup == 'robot' && o.enabled
 			o.takeTurn(roundNumber)
 
-setInterval(everyoneTakeTurns(), 100)
+everyoneTakeRegularTurns = () ->
+	intervalLength = parseInt($('#interval-length').val())
+	if document.getElementById('game-running').checked
+		everyoneTakeTurns()
+	setTimeout(everyoneTakeRegularTurns, intervalLength)
+
+$ () ->
+	everyoneTakeRegularTurns()
