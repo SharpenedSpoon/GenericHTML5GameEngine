@@ -67,6 +67,7 @@ $(window).on 'keyup', (e) ->
 
 everyoneTakeTurns = () ->
 	roundNumber++
+	$('#round-number').html(roundNumber)
 	console.log roundNumber
 	for o in gameObjects
 		if o.collisionGroup == 'robot' && o.enabled
@@ -80,3 +81,7 @@ everyoneTakeRegularTurns = () ->
 
 $ () ->
 	everyoneTakeRegularTurns()
+
+
+GameLog = (txt) ->
+	$('#game-log').append('<li>Round ' + roundNumber + ': ' + txt + '</li>')

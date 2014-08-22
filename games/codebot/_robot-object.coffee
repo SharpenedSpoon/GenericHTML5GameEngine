@@ -74,7 +74,7 @@ class Robot extends CodebotGameObject
 		# temp function. draw lines to sighted objects
 		if @objectsSighted != []
 			for o in @objectsSighted
-				drawLine(@center.x, @center.y, o.center.x, o.center.y)
+				drawLine(@center.x, @center.y, o.center.x, o.center.y, @color)
 				context.globalAlpha = 0.5
 				drawSquare(o.x, o.y, o.width, o.height, o.color)
 				context.globalAlpha = 1
@@ -151,14 +151,22 @@ class Robot extends CodebotGameObject
 		return null
 
 	attack: () =>
+		killedArray = []
 		killedText = ' and kills... '
 		for o in gameObjects
 			if o.enabled && o != this
 				# if we're right on top of the other object, kill it
 				if @distance(@x, @y, o.x, o.y) < Math.max(@width, @height)
 					killedText += o.name + ', '
+					killedArray.push o
 					o.enabled = false
 		killedText += 'noone' if killedText == ' and kills... '
+		if killedArray != []
+			for o in killedArray
+				if o.collisionGroup == 'flag'
+					GameLog(@name + ' captured the flag!!')
+				else
+					GameLog(@name + ' killed ' + o.name)
 		console.log @name + ' attacks' + killedText
 		return null
 
