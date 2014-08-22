@@ -21,10 +21,10 @@ Variable | Description
 `@objectsSighted` | An array of object states from the last call of `@lookAround`. Each call of `@lookAround` will clear this array and repopulate it as is appropriate.
 
 
-### Robot class instance methods
-These are the methods which you are allowed to call during the `takeTurn` method. Note that only *one* of these methods may be called during each turn!
+### Robot actions
+These are the methods (we will call them actions) which you are allowed to call during the `takeTurn` method. Note that only *one* of these methods may be called during each turn!
 
-Method | Description
+Action | Description
 -------- | -----------
 `@moveUp` | Moves up
 `@moveRight` | Moves right
@@ -49,6 +49,15 @@ When you perform a `@lookAround()` the `@objectsSighted` array is populated with
 	}
 
 So, if you know that there is at least one GameObject spotted, you may determine what type of object it is by calling `@objectsSighted[0].collisionGroup` (which is a string, either "flag" or "robot"). To determine its x-coordinate, call `@objectsSighted[0].x` ... have fun!
+
+
+### Robot class methods
+There are a few (technically just one right now) methods that are provided inside the robot class to help with common calculations.
+
+Method | Description
+-------- | -----------
+`@distance(x1, y1, x2, y2)` | Returns the Euclidean distance between two points. (for non-mathy people, note that the order of the coordinates does not matter)
+
 
 ### Global variables
 There are two global variables that you may access.
