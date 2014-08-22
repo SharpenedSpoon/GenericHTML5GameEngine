@@ -5,8 +5,12 @@ createGameObjects = () ->
 	players = []
 	for i in [1..3]
 		thisPlayer = new DummyRobot("Dummy" + i)
-		thisPlayer.x = Math.floor(Math.random() * 40) * 10
-		thisPlayer.y = Math.floor(Math.random() * 40) * 10
+		thisPlayer.x = Math.floor(Math.random() * canvas.width / 10) * 10
+		thisPlayer.y = Math.floor(Math.random() * canvas.height / 10) * 10
+
+	ian = new IanRobot("Ian")
+	ian.x = Math.floor(Math.random() * canvas.width / 10) * 10
+	ian.y = Math.floor(Math.random() * canvas.height / 10) * 10
 
 	f1.x = 50
 	f1.y = 50

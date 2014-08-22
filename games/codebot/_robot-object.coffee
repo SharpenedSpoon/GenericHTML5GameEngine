@@ -151,12 +151,15 @@ class Robot extends CodebotGameObject
 		return null
 
 	attack: () =>
+		killedText = ' and kills... '
 		for o in gameObjects
 			if o.enabled && o != this
 				# if we're right on top of the other object, kill it
 				if @distance(@x, @y, o.x, o.y) < Math.max(@width, @height)
+					killedText += o.name + ', '
 					o.enabled = false
-		console.log @name + ' attacks'
+		killedText += 'noone' if killedText == ' and kills... '
+		console.log @name + ' attacks' + killedText
 		return null
 
 
@@ -166,7 +169,7 @@ class Robot extends CodebotGameObject
 	# generic Robot helper methods
 
 	drawSightRadius: () =>
-		drawCircle(@center.x, @center.y, @sightRadius, '#11aa00', false, 3)
+		drawCircle(@center.x, @center.y, @sightRadius, '#11aa00', false, 1)
 
 	# restricts movement to within the canvas
 	stayOnScreen: () =>
