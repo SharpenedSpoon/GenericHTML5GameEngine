@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, DummyRobot, Flag, GameObject, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
+  var CodebotGameObject, Debug, DummyRobot, Flag, GameObject, IanRobot, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -490,31 +490,30 @@
     };
 
     Robot.prototype.update = function(dt) {
-      Robot.__super__.update.call(this, dt);
-      if (this.keysPressed[KeyCode.W]) {
-        this.moveUp();
-        this.keysPressed[KeyCode.W] = false;
-      }
-      if (this.keysPressed[KeyCode.A]) {
-        this.moveLeft();
-        this.keysPressed[KeyCode.A] = false;
-      }
-      if (this.keysPressed[KeyCode.S]) {
-        this.moveDown();
-        this.keysPressed[KeyCode.S] = false;
-      }
-      if (this.keysPressed[KeyCode.D]) {
-        this.moveRight();
-        this.keysPressed[KeyCode.D] = false;
-      }
-      if (this.keysPressed[KeyCode.L]) {
-        this.lookAround();
-        this.keysPressed[KeyCode.L] = false;
-      }
-      if (this.keysPressed[KeyCode.M]) {
-        this.attack();
-        return this.keysPressed[KeyCode.M] = false;
-      }
+      return Robot.__super__.update.call(this, dt);
+
+      /*
+      		if @keysPressed[KeyCode.W]
+      			@moveUp()
+      			@keysPressed[KeyCode.W] = false
+      		if @keysPressed[KeyCode.A]
+      			@moveLeft()
+      			@keysPressed[KeyCode.A] = false
+      		if @keysPressed[KeyCode.S]
+      			@moveDown()
+      			@keysPressed[KeyCode.S] = false
+      		if @keysPressed[KeyCode.D]
+      			@moveRight()
+      			@keysPressed[KeyCode.D] = false
+      
+      		if @keysPressed[KeyCode.L]
+      			@lookAround()
+      			@keysPressed[KeyCode.L] = false
+      
+      		if @keysPressed[KeyCode.M]
+      			@attack()
+      			@keysPressed[KeyCode.M] = false
+       */
     };
 
     Robot.prototype.render = function(dt) {
@@ -583,24 +582,28 @@
     Robot.prototype.moveUp = function() {
       this.y -= this.speed;
       this.stayOnScreen();
+      console.log(this.name + ' moves up');
       return null;
     };
 
     Robot.prototype.moveDown = function() {
       this.y += this.speed;
       this.stayOnScreen();
+      console.log(this.name + ' moves down');
       return null;
     };
 
     Robot.prototype.moveRight = function() {
       this.x += this.speed;
       this.stayOnScreen();
+      console.log(this.name + ' moves right');
       return null;
     };
 
     Robot.prototype.moveLeft = function() {
       this.x -= this.speed;
       this.stayOnScreen();
+      console.log(this.name + ' moves left');
       return null;
     };
 
@@ -615,6 +618,7 @@
           }
         }
       }
+      console.log(this.name + ' looks around');
       return null;
     };
 
@@ -628,6 +632,7 @@
           }
         }
       }
+      console.log(this.name + ' attacks');
       return null;
     };
 
@@ -747,7 +752,7 @@
 
   /*
   --------------------------------------------
-       Begin _ian-robot-object.coffee
+       Begin _dummy-robot-object.coffee
   --------------------------------------------
    */
 
@@ -764,39 +769,40 @@
       previousObjectsSighted = this.objectsSighted;
       if (roundNumber % 3 === 0) {
         this.lookAround();
-      }
-      if (this.objectsSighted.length === 0) {
-        randDir = [1, 2, 3, 4];
-        randDir = randDir[Math.floor(Math.random() * randDir.length)];
-        switch (randDir) {
-          case 1:
-            this.moveUp();
-            break;
-          case 2:
-            this.moveRight();
-            break;
-          case 3:
-            this.moveDown();
-            break;
-          case 4:
-            this.moveLeft();
-        }
       } else {
-        dx = this.objectsSighted[0].x - this.x;
-        dy = this.objectsSighted[0].y - this.y;
-        if (dx === 0 && dy === 0) {
-          this.attack();
-        } else if (Math.abs(dy) > Math.abs(dx)) {
-          if (dy > 0) {
-            this.moveDown();
-          } else if (dy < 0) {
-            this.moveUp();
+        if (this.objectsSighted.length === 0) {
+          randDir = [1, 2, 3, 4];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveUp();
+              break;
+            case 2:
+              this.moveRight();
+              break;
+            case 3:
+              this.moveDown();
+              break;
+            case 4:
+              this.moveLeft();
           }
         } else {
-          if (dx > 0) {
-            this.moveRight();
-          } else if (dx < 0) {
-            this.moveLeft();
+          dx = this.objectsSighted[0].x - this.x;
+          dy = this.objectsSighted[0].y - this.y;
+          if (dx === 0 && dy === 0) {
+            this.attack();
+          } else if (Math.abs(dy) > Math.abs(dx)) {
+            if (dy > 0) {
+              this.moveDown();
+            } else if (dy < 0) {
+              this.moveUp();
+            }
+          } else {
+            if (dx > 0) {
+              this.moveRight();
+            } else if (dx < 0) {
+              this.moveLeft();
+            }
           }
         }
       }
@@ -804,6 +810,27 @@
     };
 
     return DummyRobot;
+
+  })(Robot);
+
+
+  /*
+  --------------------------------------------
+       Begin _ian-robot-object.coffee
+  --------------------------------------------
+   */
+
+  IanRobot = (function(_super) {
+    __extends(IanRobot, _super);
+
+    function IanRobot() {
+      this.takeTurn = __bind(this.takeTurn, this);
+      return IanRobot.__super__.constructor.apply(this, arguments);
+    }
+
+    IanRobot.prototype.takeTurn = function(roundNumber) {};
+
+    return IanRobot;
 
   })(Robot);
 
@@ -819,7 +846,7 @@
     f1 = new Flag("Flag 1");
     players = [];
     for (i = _i = 1; _i <= 3; i = ++_i) {
-      thisPlayer = new DummyRobot("Dummy");
+      thisPlayer = new DummyRobot("Dummy" + i);
       thisPlayer.x = Math.floor(Math.random() * 40) * 10;
       thisPlayer.y = Math.floor(Math.random() * 40) * 10;
     }

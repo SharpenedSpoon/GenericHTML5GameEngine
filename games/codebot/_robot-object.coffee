@@ -31,6 +31,7 @@ class Robot extends CodebotGameObject
 	update: (dt) =>
 		super dt
 		# debug. delete this before production.
+		###
 		if @keysPressed[KeyCode.W]
 			@moveUp()
 			@keysPressed[KeyCode.W] = false
@@ -51,6 +52,7 @@ class Robot extends CodebotGameObject
 		if @keysPressed[KeyCode.M]
 			@attack()
 			@keysPressed[KeyCode.M] = false
+		###
 
 	render: (dt) =>
 		super dt
@@ -115,18 +117,22 @@ class Robot extends CodebotGameObject
 	moveUp: () =>
 		@y -= @speed
 		@stayOnScreen()
+		console.log @name + ' moves up'
 		return null
 	moveDown: () =>
 		@y += @speed
 		@stayOnScreen()
+		console.log @name + ' moves down'
 		return null
 	moveRight: () =>
 		@x += @speed
 		@stayOnScreen()
+		console.log @name + ' moves right'
 		return null
 	moveLeft: () =>
 		@x -= @speed
 		@stayOnScreen()
+		console.log @name + ' moves left'
 		return null
 
 	lookAround: () =>
@@ -141,6 +147,7 @@ class Robot extends CodebotGameObject
 					# info to our objectsSighted array
 					@objectsSighted.push(o.getInfo())
 
+		console.log @name + ' looks around'
 		return null
 
 	attack: () =>
@@ -149,6 +156,7 @@ class Robot extends CodebotGameObject
 				# if we're right on top of the other object, kill it
 				if @distance(@x, @y, o.x, o.y) < Math.max(@width, @height)
 					o.enabled = false
+		console.log @name + ' attacks'
 		return null
 
 

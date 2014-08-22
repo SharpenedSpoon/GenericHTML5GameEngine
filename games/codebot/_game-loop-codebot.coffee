@@ -4,7 +4,7 @@ createGameObjects = () ->
 
 	players = []
 	for i in [1..3]
-		thisPlayer = new DummyRobot("Dummy")
+		thisPlayer = new DummyRobot("Dummy" + i)
 		thisPlayer.x = Math.floor(Math.random() * 40) * 10
 		thisPlayer.y = Math.floor(Math.random() * 40) * 10
 
