@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, start, step, timestamp, update,
+  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, gameStarted, last, now, paused, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -146,9 +146,11 @@
   };
 
   beginGameLoop = function() {
+    var gameStarted;
     createGameObjects();
     awake();
     start();
+    gameStarted = true;
     last = timestamp();
     requestAnimationFrame(frame);
     return true;
@@ -247,16 +249,20 @@
       this.fixedUpdate = __bind(this.fixedUpdate, this);
       this.start = __bind(this.start, this);
       this.awake = __bind(this.awake, this);
-      this.enabled = true;
-      this.collisionGroup = "default";
+      this.enabled = this.enabled || true;
+      this.collisionGroup = this.collisionGroup || "default";
       this.name = name;
-      this.x = 0;
-      this.y = 0;
-      this.width = 0;
-      this.height = 0;
-      this.collidedObjects = [];
+      this.x = this.x || 0;
+      this.y = this.y || 0;
+      this.width = this.width || 0;
+      this.height = this.height || 0;
+      this.collidedObjects = this.collidedObjects || [];
       this.id = gameObjects.length;
       gameObjects.push(this);
+      if (gameStarted) {
+        this.awake();
+        this.start();
+      }
     }
 
     GameObject.prototype.awake = function() {};
@@ -321,6 +327,8 @@
   canvas = null;
 
   context = null;
+
+  gameStarted = false;
 
   gameObjects = [];
 

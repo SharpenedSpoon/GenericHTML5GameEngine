@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, DummyRobot, Flag, GameLog, GameObject, IanRobot, KeyCode, KyleRobot, Robot, TMGBot, TimmyRobot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, shuffle, start, step, timestamp, update,
+  var CodebotGameObject, Debug, DummyRobot, Flag, GameLog, GameObject, IanRobot, KeyCode, KyleRobot, Robot, TMGBot, TimmyRobot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, gameStarted, last, now, paused, render, roundNumber, shuffle, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -146,9 +146,11 @@
   };
 
   beginGameLoop = function() {
+    var gameStarted;
     createGameObjects();
     awake();
     start();
+    gameStarted = true;
     last = timestamp();
     requestAnimationFrame(frame);
     return true;
@@ -247,16 +249,20 @@
       this.fixedUpdate = __bind(this.fixedUpdate, this);
       this.start = __bind(this.start, this);
       this.awake = __bind(this.awake, this);
-      this.enabled = true;
-      this.collisionGroup = "default";
+      this.enabled = this.enabled || true;
+      this.collisionGroup = this.collisionGroup || "default";
       this.name = name;
-      this.x = 0;
-      this.y = 0;
-      this.width = 0;
-      this.height = 0;
-      this.collidedObjects = [];
+      this.x = this.x || 0;
+      this.y = this.y || 0;
+      this.width = this.width || 0;
+      this.height = this.height || 0;
+      this.collidedObjects = this.collidedObjects || [];
       this.id = gameObjects.length;
       gameObjects.push(this);
+      if (gameStarted) {
+        this.awake();
+        this.start();
+      }
     }
 
     GameObject.prototype.awake = function() {};
@@ -321,6 +327,8 @@
   canvas = null;
 
   context = null;
+
+  gameStarted = false;
 
   gameObjects = [];
 
@@ -1299,18 +1307,10 @@
    */
 
   createGameObjects = function() {
-    var austin, col, f1, i, ian, kyle, o, row, spawnArea, timmy, _i, _j, _len;
+    var col, f1, ian, o, row, spawnArea, _i, _len;
     f1 = new Flag("Flag 1");
-    for (i = _i = 1; _i <= 4; i = ++_i) {
-      austin = new TMGBot("Austin" + i);
-      kyle = new KyleRobot("Kyle" + i);
-      ian = new IanRobot("Ian" + i);
-      timmy = new TimmyRobot("Timmy" + i);
-      ian.color = '#aa00aa';
-      timmy.color = '#185F7F';
-      austin.color = '#3dad3d';
-      kyle.color = '#660202';
-    }
+    ian = new IanRobot("Ian" + i);
+    ian.color = '#aa00aa';
     gameObjects = shuffle(gameObjects);
     spawnArea = {
       width: canvas.width / 4,
@@ -1318,8 +1318,8 @@
     };
     row = 0;
     col = 0;
-    for (_j = 0, _len = gameObjects.length; _j < _len; _j++) {
-      o = gameObjects[_j];
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      o = gameObjects[_i];
       o.x = Math.floor((Math.random() * canvas.width) / 10) * 10;
       o.y = Math.floor((Math.random() * canvas.height) / 10) * 10;
       GameLog('Spawning ' + o.name + ' at (' + o.x + ',' + o.y + ')');
