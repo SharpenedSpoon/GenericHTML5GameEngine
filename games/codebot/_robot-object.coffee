@@ -167,6 +167,7 @@ class Robot extends CodebotGameObject
 					GameLog(@name + ' captured the flag!!')
 					document.getElementById('game-running').checked = false
 				else
+					GameLog(@name + ' killed ' + o.name)
 					document.getElementById('game-running').checked = false
 					$('#game-log').prepend('<div id="fatality"><img src="games/codebot/images/fatality.gif" /></div>')
 					setTimeout(() ->

@@ -1,0 +1,161 @@
+<h1>Codebot robots API</h1>
+
+<h2>Description</h2>
+
+<p>A robot is a class that extends the class &ldquo;Robot&rdquo; - see _dummy-robot-object.coffee for an example. This class only needs one function, <code>takeTurn</code> which takes the argument <code>roundNumber</code> - which is, of course, the current round number. Inside of takeTurn, only one &ldquo;action&rdquo; is allowed, and in general no class variables may be created, modified, or destroyed. Although javascript doesn&rsquo;t allow it, just assume that you only have &lsquo;getter&rsquo; access to all class variables.</p>
+
+<h2>Variables, Methods, and States</h2>
+
+<h3>Robot class instance variables</h3>
+
+<p>The following variables are available for you to access and get information (but <em>not</em> overwrite with new values). Recall that in coffeescript, you may use the &ldquo;@&rdquo; symbol as a shortcut for &ldquo;this.&rdquo;, which is convenient, and used here, for accessing instance variables and methods.</p>
+
+<table>
+<thead>
+<tr>
+<th>Variable </th>
+<th> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@x</code> </td>
+<td> Your robot&rsquo;s (top left) x-coordinate</td>
+</tr>
+<tr>
+<td><code>@y</code> </td>
+<td> Your robot&rsquo;s (top left) y-coordinate. Note that the y-axis points down</td>
+</tr>
+<tr>
+<td><code>@width</code> </td>
+<td> Your robot&rsquo;s width</td>
+</tr>
+<tr>
+<td><code>@height</code> </td>
+<td> Your robot&rsquo;s height</td>
+</tr>
+<tr>
+<td><code>@center</code> </td>
+<td> An object containing the x- and y- coordinates of your robot&rsquo;s center (access with <code>@center.x</code> and <code>@center.y</code>)</td>
+</tr>
+<tr>
+<td><code>@sightRadius</code> </td>
+<td> How far you can see when you <code>@lookAround</code></td>
+</tr>
+<tr>
+<td><code>@collisionGroup</code> </td>
+<td> Your robot&rsquo;s collision group, which is &ldquo;robot&rdquo; - the only other collision group currently is &ldquo;flag&rdquo; for the flag.</td>
+</tr>
+<tr>
+<td><code>@speed</code> </td>
+<td> The distance your robot moves when calling one of the move actions</td>
+</tr>
+<tr>
+<td><code>@objectsSighted</code> </td>
+<td> An array of object states from the last call of <code>@lookAround</code>. Each call of <code>@lookAround</code> will clear this array and repopulate it as is appropriate.</td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>Robot actions</h3>
+
+<p>These are the methods (we will call them actions) which you are allowed to call during the <code>takeTurn</code> method. Note that only <em>one</em> of these methods may be called during each turn!</p>
+
+<table>
+<thead>
+<tr>
+<th>Action </th>
+<th> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@moveUp</code> </td>
+<td> Moves up</td>
+</tr>
+<tr>
+<td><code>@moveRight</code> </td>
+<td> Moves right</td>
+</tr>
+<tr>
+<td><code>@moveDown</code> </td>
+<td>  Moves down</td>
+</tr>
+<tr>
+<td><code>@moveLeft</code> </td>
+<td> Moves left</td>
+</tr>
+<tr>
+<td><code>@lookAround()</code> </td>
+<td> Looks around within a <code>@sightRadius</code> circle and populates the <code>@objectsSighted</code> array with the current state of any and all GameObjects around you</td>
+</tr>
+<tr>
+<td><code>@attack()</code> </td>
+<td> Attacks and destroys any GameObject that you are immediately on top of.</td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>GameObject states</h3>
+
+<p>When you perform a <code>@lookAround()</code> the <code>@objectsSighted</code> array is populated with the current state of all GameObjects around you. Specifically, the <code>@objectsSighted</code> array is filled with these objects:</p>
+
+<pre><code>{
+    name
+    x
+    y
+    center
+    width
+    height
+    collisionGroup
+    color
+}
+</code></pre>
+
+<p>So, if you know that there is at least one GameObject spotted, you may determine what type of object it is by calling <code>@objectsSighted[0].collisionGroup</code> (which is a string, either &ldquo;flag&rdquo; or &ldquo;robot&rdquo;). To determine its x-coordinate, call <code>@objectsSighted[0].x</code> &hellip; have fun!</p>
+
+<h3>Robot class methods</h3>
+
+<p>There are a few (technically just one right now) methods that are provided inside the robot class to help with common calculations.</p>
+
+<table>
+<thead>
+<tr>
+<th>Method </th>
+<th> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@distance(x1, y1, x2, y2)</code> </td>
+<td> Returns the Euclidean distance between two points. (for non-mathy people, note that the order of the coordinates does not matter)</td>
+</tr>
+</tbody>
+</table>
+
+
+<h3>Global variables</h3>
+
+<p>There are two global variables that you may access.</p>
+
+<table>
+<thead>
+<tr>
+<th>Variable </th>
+<th> Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>canvas.width</code> </td>
+<td> The total width of the battle arena</td>
+</tr>
+<tr>
+<td><code>canvas.height</code> </td>
+<td> The total height of the battle arena</td>
+</tr>
+</tbody>
+</table>
+

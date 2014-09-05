@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var CodebotGameObject, Debug, DummyRobot, Flag, GameObject, IanRobot, KeyCode, Robot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, start, step, timestamp, update,
+  var CodebotGameObject, Debug, DummyRobot, Flag, GameLog, GameObject, IanRobot, KeyCode, KyleRobot, Robot, TMGBot, TimmyRobot, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, everyoneTakeRegularTurns, everyoneTakeTurns, fixedUpdate, frame, frames, gameObjects, last, now, paused, render, roundNumber, shuffle, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -531,7 +531,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           o = _ref[_i];
-          drawLine(this.center.x, this.center.y, o.center.x, o.center.y);
+          drawLine(this.center.x, this.center.y, o.center.x, o.center.y, this.color);
           context.globalAlpha = 0.5;
           drawSquare(o.x, o.y, o.width, o.height, o.color);
           _results.push(context.globalAlpha = 1);
@@ -623,21 +623,44 @@
     };
 
     Robot.prototype.attack = function() {
-      var o, _i, _len;
+      var killedArray, killedText, o, _i, _j, _len, _len1;
+      killedArray = [];
+      killedText = ' and kills... ';
       for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
         o = gameObjects[_i];
         if (o.enabled && o !== this) {
           if (this.distance(this.x, this.y, o.x, o.y) < Math.max(this.width, this.height)) {
+            killedText += o.name + ', ';
+            killedArray.push(o);
             o.enabled = false;
           }
         }
       }
-      console.log(this.name + ' attacks');
+      if (killedText === ' and kills... ') {
+        killedText += 'noone';
+      }
+      if (killedArray !== []) {
+        for (_j = 0, _len1 = killedArray.length; _j < _len1; _j++) {
+          o = killedArray[_j];
+          if (o.collisionGroup === 'flag') {
+            GameLog(this.name + ' captured the flag!!');
+            document.getElementById('game-running').checked = false;
+          } else {
+            GameLog(this.name + ' killed ' + o.name);
+            document.getElementById('game-running').checked = false;
+            $('#game-log').prepend('<div id="fatality"><img src="games/codebot/images/fatality.gif" /></div>');
+            setTimeout(function() {
+              return $('#fatality').remove();
+            }, 4000);
+          }
+        }
+      }
+      console.log(this.name + ' attacks' + killedText);
       return null;
     };
 
     Robot.prototype.drawSightRadius = function() {
-      return drawCircle(this.center.x, this.center.y, this.sightRadius, '#11aa00', false, 3);
+      return drawCircle(this.center.x, this.center.y, this.sightRadius, '#11aa00', false, 1);
     };
 
     Robot.prototype.stayOnScreen = function() {
@@ -824,13 +847,447 @@
     __extends(IanRobot, _super);
 
     function IanRobot() {
+      this.moveAway = __bind(this.moveAway, this);
+      this.moveTowards = __bind(this.moveTowards, this);
+      this.moveRandomly = __bind(this.moveRandomly, this);
       this.takeTurn = __bind(this.takeTurn, this);
       return IanRobot.__super__.constructor.apply(this, arguments);
     }
 
-    IanRobot.prototype.takeTurn = function(roundNumber) {};
+    IanRobot.prototype.takeTurn = function(roundNumber) {
+      if (roundNumber % 3) {
+        return this.lookAround();
+      } else {
+        if (this.objectsSighted.length > 0) {
+          if (this.objectsSighted[0].collisionGroup === 'flag') {
+            if (this.objectsSighted[0].x === this.x && this.objectsSighted[0].y === this.y) {
+              return this.attack();
+            } else {
+              return this.moveTowards(this.objectsSighted[0].x, this.objectsSighted[0].y);
+            }
+          } else {
+            return this.moveAway(this.objectsSighted[0].x, this.objectsSighted[0].y);
+          }
+        } else {
+          return this.moveRandomly();
+        }
+      }
+    };
+
+    IanRobot.prototype.moveRandomly = function() {
+      var r;
+      r = Math.floor(Math.random() * 4);
+      switch (r) {
+        case 0:
+          return this.moveUp();
+        case 1:
+          return this.moveRight();
+        case 2:
+          return this.moveDown();
+        case 3:
+          return this.moveLeft();
+      }
+    };
+
+    IanRobot.prototype.moveTowards = function(targetX, targetY) {
+      var dx, dy;
+      dx = targetX - this.x;
+      dy = targetX - this.y;
+      dx *= -1;
+      dy *= -1;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) {
+          return this.moveRight();
+        } else if (dx > 0) {
+          return this.moveLeft();
+        }
+      } else {
+        if (dy < 0) {
+          return this.moveDown();
+        } else if (dy > 0) {
+          return this.moveUp();
+        }
+      }
+    };
+
+    IanRobot.prototype.moveAway = function(targetX, targetY) {
+      var dx, dy;
+      dx = targetX - this.x;
+      dy = targetX - this.y;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) {
+          return this.moveRight();
+        } else if (dx > 0) {
+          return this.moveLeft();
+        }
+      } else {
+        if (dy < 0) {
+          return this.moveDown();
+        } else if (dy > 0) {
+          return this.moveUp();
+        }
+      }
+    };
 
     return IanRobot;
+
+  })(Robot);
+
+
+  /*
+  --------------------------------------------
+       Begin _timmy-robot-object.coffee
+  --------------------------------------------
+   */
+
+  TimmyRobot = (function(_super) {
+    __extends(TimmyRobot, _super);
+
+    function TimmyRobot() {
+      this.takeTurn = __bind(this.takeTurn, this);
+      return TimmyRobot.__super__.constructor.apply(this, arguments);
+    }
+
+    TimmyRobot.prototype.takeTurn = function(roundNumber) {
+      var r;
+      r = Math.floor(Math.random() * 6);
+      switch (r) {
+        case 0:
+          this.moveUp();
+          break;
+        case 1:
+          this.moveRight();
+          break;
+        case 2:
+          this.moveDown();
+          break;
+        case 3:
+          this.moveLeft();
+          break;
+        case 4:
+          this.lookAround();
+          break;
+        case 5:
+          this.attack();
+      }
+      return null;
+    };
+
+    return TimmyRobot;
+
+  })(Robot);
+
+
+  /*
+  --------------------------------------------
+       Begin _tmgbot-robot-object.coffee
+  --------------------------------------------
+   */
+
+  TMGBot = (function(_super) {
+    __extends(TMGBot, _super);
+
+    function TMGBot() {
+      this.towardsCenter = __bind(this.towardsCenter, this);
+      this.defaultMove = __bind(this.defaultMove, this);
+      this.takeTurn = __bind(this.takeTurn, this);
+      return TMGBot.__super__.constructor.apply(this, arguments);
+    }
+
+    TMGBot.prototype.takeTurn = function(roundNumber) {
+      var borderBottom, borderLeft, borderRight, borderTop, centerX, centerY, flagFound, flagObject, foreignItem, previousObjectsSighted, _i, _len, _ref;
+      previousObjectsSighted = this.objectsSighted;
+      borderLeft = this.sightRadius;
+      borderRight = canvas.width - this.sightRadius;
+      borderTop = this.sightRadius;
+      borderBottom = canvas.width - this.sightRadius;
+      centerX = (borderLeft + borderRight) / 2;
+      centerY = (borderTop + borderBottom) / 2;
+      if (roundNumber % 5 === 0) {
+        this.lookAround();
+      } else {
+        flagFound = false;
+        _ref = this.objectsSighted;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          foreignItem = _ref[_i];
+          if (foreignItem.collisionGroup === 'flag') {
+            flagFound = true;
+            flagObject = foreignItem;
+          }
+        }
+        if (flagFound) {
+          if (this.x - flagObject.x > 0) {
+            this.moveLeft();
+          } else if (this.x - flagObject.x < 0) {
+            this.moveRight();
+          } else if (this.y - flagObject.y > 0) {
+            this.moveUp();
+          } else if (this.y - flagObject.y < 0) {
+            this.moveDown();
+          } else {
+            this.attack();
+          }
+        } else {
+          this.defaultMove(roundNumber);
+        }
+      }
+      return null;
+    };
+
+    TMGBot.prototype.defaultMove = function(roundNumber) {
+      var borderBottom, borderLeft, borderRight, borderTop, centerX, centerY, randDir;
+      borderLeft = this.sightRadius / 2;
+      borderRight = canvas.width - this.sightRadius / 2;
+      borderTop = this.sightRadius / 2;
+      borderBottom = canvas.height - this.sightRadius / 2;
+      centerX = (borderLeft + borderRight) / 2;
+      centerY = (borderTop + borderBottom) / 2;
+      if (this.x >= centerX - 10 && this.x <= centerX + 10 && this.y >= centerY - 10 && this.y <= centerY + 10) {
+        randDir = [1, 2, 3, 4];
+        randDir = randDir[Math.floor(Math.random() * randDir.length)];
+        switch (randDir) {
+          case 1:
+            this.moveUp();
+            break;
+          case 2:
+            this.moveRight();
+            break;
+          case 3:
+            this.moveDown();
+            break;
+          case 4:
+            this.moveLeft();
+        }
+      } else if (this.x >= (centerX - 10) && this.x <= (centerX + 10)) {
+        if (this.y > borderTop && this.y < centerY) {
+          this.moveUp();
+        } else if (this.y < borderBottom && this.y > centerY) {
+          this.moveDown();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveLeft();
+              break;
+            case 2:
+              this.moveRight();
+          }
+        }
+      } else if (this.y >= centerY - 10 && this.y <= centerY + 10) {
+        if (this.x < borderRight && this.x > centerX) {
+          this.moveRight();
+        } else if (this.x > borderLeft && this.x < centerX) {
+          this.moveLeft();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveUp();
+              break;
+            case 2:
+              this.moveDown();
+          }
+        }
+      } else if (this.x <= borderLeft) {
+        if (this.y < (borderTop + 20) || this.y > borderBottom - 20) {
+          this.moveRight();
+        } else if (this.y < centerY && this.y > borderTop) {
+          this.moveUp();
+        } else if (this.y > centerY && this.y < borderBottom) {
+          this.moveDown();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveUP();
+              break;
+            case 2:
+              this.moveDown();
+          }
+        }
+      } else if (this.x >= borderRight) {
+        if (this.y < (borderTop + 20) || this.y > borderBottom - 20) {
+          this.moveLeft();
+        } else if (this.y < centerY && this.y > borderTop) {
+          this.moveUp();
+        } else if (this.y > centerY && this.y < borderBottom) {
+          this.moveDown();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveUp();
+              break;
+            case 2:
+              this.moveDown();
+          }
+        }
+      } else if (this.y <= borderTop) {
+        if (this.x < (borderLeft + 20) || this.x > borderRight - 20) {
+          this.moveDown();
+        } else if (this.x > centerX && this.x < borderRight) {
+          this.moveRight();
+        } else if (this.x < centerX && this.x > borderLeft) {
+          this.moveLeft();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveRight();
+              break;
+            case 2:
+              this.moveLeft();
+          }
+        }
+      } else if (this.y >= borderBottom) {
+        if (this.x < (borderLeft + 20) || this.x > borderRight - 20) {
+          this.moveUp();
+        } else if (this.x > centerX && this.x < borderRight) {
+          this.moveRight();
+        } else if (this.x < centerX && this.x > borderLeft) {
+          this.moveLeft();
+        } else {
+          randDir = [1, 2];
+          randDir = randDir[Math.floor(Math.random() * randDir.length)];
+          switch (randDir) {
+            case 1:
+              this.moveRight();
+              break;
+            case 2:
+              this.moveLeft();
+          }
+        }
+      } else {
+        if (roundNumber % 2 === 0) {
+          if (this.x > centerX) {
+            this.moveLeft();
+          } else {
+            this.moveRight();
+          }
+        } else {
+          if (this.y > centerY) {
+            this.moveUp();
+          } else {
+            this.moveDown();
+          }
+        }
+      }
+      return null;
+    };
+
+    TMGBot.prototype.towardsCenter = function() {
+      var borderBottom, borderLeft, borderRight, borderTop, centerX, centerY, fromCenterX, fromCenterY;
+      borderLeft = this.sightRadius;
+      borderRight = canvas.width - this.sightRadius;
+      borderTop = this.sightRadius;
+      borderBottom = canvas.height - this.sightRadius;
+      centerX = (borderLeft + borderRight) / 2;
+      centerY = (borderTop + borderBottom) / 2;
+      fromCenterX = Math.abs(centerX - this.x);
+      fromCenterY = Math.abs(centerY - this.y);
+      if (fromCenterX > fromCenterX) {
+        if (centerX - this.x > 0) {
+          this.moveRight();
+        } else {
+          this.moveLeft();
+        }
+      } else {
+        if (centerY - this.y > 0) {
+          this.moveDown();
+        } else {
+          this.moveUp();
+        }
+      }
+      return null;
+    };
+
+    return TMGBot;
+
+  })(Robot);
+
+
+  /*
+  --------------------------------------------
+       Begin _kyle-robot-object.coffee
+  --------------------------------------------
+   */
+
+  KyleRobot = (function(_super) {
+    __extends(KyleRobot, _super);
+
+    function KyleRobot() {
+      this.takeTurn = __bind(this.takeTurn, this);
+      return KyleRobot.__super__.constructor.apply(this, arguments);
+    }
+
+    KyleRobot.prototype.takeTurn = function(roundNumber) {
+      var distanceToEnemy, dx, dy, previousObjectsSighted, randDir;
+      previousObjectsSighted = this.objectsSighted;
+      if (roundNumber % 3 === 0) {
+        this.lookAround();
+      } else {
+        if (this.objectsSighted.length === 0) {
+          if (this.center.x < (6 + (this.sightRadius / 2))) {
+            this.moveRight();
+          } else if (this.center.x > (canvas.width - (6 + (this.sightRadius / 2)))) {
+            this.moveLeft();
+          } else if (this.center.y < (6 + (this.sightRadius / 2))) {
+            this.moveDown();
+          } else if (this.center.y > (canvas.height - (6 + (this.sightRadius / 2)))) {
+            this.moveUp();
+          } else {
+            randDir = [1, 2, 3, 4];
+            randDir = randDir[Math.floor(Math.random() * randDir.length)];
+            switch (randDir) {
+              case 1:
+                this.moveUp();
+                break;
+              case 2:
+                this.moveRight();
+                break;
+              case 3:
+                this.moveDown();
+                break;
+              case 4:
+                this.moveLeft();
+            }
+          }
+        } else {
+          dx = this.objectsSighted[0].x - this.x;
+          dy = this.objectsSighted[0].y - this.y;
+          distanceToEnemy = this.distance(this.x, this.y, this.objectsSighted[0].x, this.objectsSighted[0].y);
+          console.log("distance to enemy: ", distanceToEnemy);
+          console.log("distance to enemy (x): ", dx);
+          console.log("distance to enemy (y): ", dy);
+          if (dx === 0 && dy === 0) {
+            this.attack();
+          } else if (this.objectsSighted[0].collisionGroup === "robot" && (Math.abs(dy) === 10 || Math.abs(dx) === 10)) {
+            console.log('waiting to kill');
+            this.attack();
+          } else if (Math.abs(dy) > Math.abs(dx)) {
+            if (dy > 0) {
+              this.moveDown();
+            } else if (dy < 0) {
+              this.moveUp();
+            }
+          } else {
+            if (dx > 0) {
+              this.moveRight();
+            } else if (dx < 0) {
+              this.moveLeft();
+            }
+          }
+        }
+      }
+      return null;
+    };
+
+    return KyleRobot;
 
   })(Robot);
 
@@ -842,16 +1299,31 @@
    */
 
   createGameObjects = function() {
-    var f1, i, players, thisPlayer, _i;
+    var austin, col, f1, i, ian, kyle, o, row, spawnArea, timmy, _i, _j, _len;
     f1 = new Flag("Flag 1");
-    players = [];
-    for (i = _i = 1; _i <= 3; i = ++_i) {
-      thisPlayer = new DummyRobot("Dummy" + i);
-      thisPlayer.x = Math.floor(Math.random() * 40) * 10;
-      thisPlayer.y = Math.floor(Math.random() * 40) * 10;
+    for (i = _i = 1; _i <= 4; i = ++_i) {
+      austin = new TMGBot("Austin" + i);
+      kyle = new KyleRobot("Kyle" + i);
+      ian = new IanRobot("Ian" + i);
+      timmy = new TimmyRobot("Timmy" + i);
+      ian.color = '#aa00aa';
+      timmy.color = '#185F7F';
+      austin.color = '#3dad3d';
+      kyle.color = '#660202';
     }
-    f1.x = 50;
-    f1.y = 50;
+    gameObjects = shuffle(gameObjects);
+    spawnArea = {
+      width: canvas.width / 4,
+      height: canvas.height / 4
+    };
+    row = 0;
+    col = 0;
+    for (_j = 0, _len = gameObjects.length; _j < _len; _j++) {
+      o = gameObjects[_j];
+      o.x = Math.floor((Math.random() * canvas.width) / 10) * 10;
+      o.y = Math.floor((Math.random() * canvas.height) / 10) * 10;
+      GameLog('Spawning ' + o.name + ' at (' + o.x + ',' + o.y + ')');
+    }
     return null;
   };
 
@@ -927,6 +1399,7 @@
   everyoneTakeTurns = function() {
     var o, _i, _len, _results;
     roundNumber++;
+    $('#round-number').html(roundNumber);
     console.log(roundNumber);
     _results = [];
     for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
@@ -952,6 +1425,19 @@
   $(function() {
     return everyoneTakeRegularTurns();
   });
+
+  GameLog = function(txt) {
+    return $('#game-log').append('<li>Round ' + roundNumber + ': ' + txt + '</li>');
+  };
+
+  shuffle = function(a) {
+    var i, j, _i, _ref, _ref1;
+    for (i = _i = _ref = a.length - 1; _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
+      j = Math.floor(Math.random() * (i + 1));
+      _ref1 = [a[j], a[i]], a[i] = _ref1[0], a[j] = _ref1[1];
+    }
+    return a;
+  };
 
 
   /*

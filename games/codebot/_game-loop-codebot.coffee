@@ -2,38 +2,34 @@ createGameObjects = () ->
 	f1 = new Flag("Flag 1")
 
 	# Spawn players
-	austin = new DummyRobot("Austin")
-	kyle = new DummyRobot("Kyle")
-	ian = new IanRobot("Ian")
-	timmy = new TimmyRobot("Timmy")
+	#austin = new TMGBot("Austin" + i)
+	#kyle = new KyleRobot("Kyle" + i)
+	ian = new IanRobot("Ian" + i)
+	#timmy = new TimmyRobot("Timmy" + i)
+	ian.color = '#aa00aa'
+	#timmy.color = '#185F7F'
+	#austin.color = '#3dad3d'
+	#kyle.color = '#660202'
 
 	# player colors
 
-	ian.color = '#aa00aa'
-	timmy.color = '#185F7F'
-	austin.color = '#aaaaaa'
-	kyle.color = '#aaaaaa'
 
 
 	# spawning and shuffling positions
 	gameObjects = shuffle(gameObjects)
 
 	spawnArea = {
-		width: (canvas.width) / 6
-		height: (canvas.height) / 6
+		width: (canvas.width) / 4
+		height: (canvas.height) / 4
 	}
 	row = 0
 	col = 0
 	for o in gameObjects
-		o.x = Math.floor(((Math.random() * spawnArea.width) + (4 * row * spawnArea.width + spawnArea.width)) / 10) * 10
-		o.y = Math.floor(((Math.random() * spawnArea.height) + (2 * col * spawnArea.height + spawnArea.height)) / 10) * 10
+		#o.x = Math.floor(((Math.random() * spawnArea.width) + (row * spawnArea.width)) / 10) * 10
+		#o.y = Math.floor(((Math.random() * spawnArea.height) + (col * spawnArea.height)) / 10) * 10
+		o.x = Math.floor((Math.random() * canvas.width) / 10) * 10
+		o.y = Math.floor((Math.random() * canvas.height) / 10) * 10
 
-		row += 1
-		if row >= 2
-			row = 0
-			col += 1
-			if col == 2
-				row = 0.5
 		GameLog('Spawning ' + o.name + ' at (' + o.x + ',' + o.y + ')')
 	return null
 

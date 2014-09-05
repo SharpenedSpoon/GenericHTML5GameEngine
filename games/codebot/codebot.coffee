@@ -9,6 +9,8 @@
 # @codekit-prepend "_dummy-robot-object.coffee";
 # @codekit-prepend "_ian-robot-object.coffee";
 # @codekit-prepend "_timmy-robot-object.coffee";
+# @codekit-prepend "_tmgbot-robot-object.coffee";
+# @codekit-prepend "_kyle-robot-object.coffee";
 
 
 
