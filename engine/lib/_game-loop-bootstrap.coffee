@@ -32,6 +32,8 @@ beginGameLoop = () ->
 	awake()
 	start()
 
+	gameStarted = true
+
 	last = timestamp()
 
 	requestAnimationFrame(frame)

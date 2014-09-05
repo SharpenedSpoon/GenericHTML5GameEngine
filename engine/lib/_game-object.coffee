@@ -18,19 +18,23 @@ class GameObject
 
 
 	constructor: (name) ->
-		@enabled = true
-		@collisionGroup = "default"
+		@enabled = @enabled || true
+		@collisionGroup = @collisionGroup || "default"
 
 		@name = name
-		@x = 0
-		@y = 0
-		@width = 0
-		@height = 0
+		@x = @x || 0
+		@y = @y || 0
+		@width = @width || 0
+		@height = @height || 0
 
-		@collidedObjects = []
+		@collidedObjects = @collidedObjects || []
 
 		@id = gameObjects.length
 		gameObjects.push this
+
+		if gameStarted
+			@awake()
+			@start()
 
 	awake: () =>
 

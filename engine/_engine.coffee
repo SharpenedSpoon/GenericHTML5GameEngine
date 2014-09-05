@@ -16,6 +16,7 @@
 
 canvas = null
 context = null
+gameStarted = false
 gameObjects = []
 
 $ () ->
