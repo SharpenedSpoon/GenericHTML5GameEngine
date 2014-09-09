@@ -7,7 +7,7 @@
  */
 
 (function() {
-  var Ball, Debug, GameObject, KeyCode, Player, awake, beginGameLoop, canvas, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, gameStarted, last, now, paused, players, render, start, step, timestamp, update,
+  var Ball, Debug, GameObject, KeyCode, Player, Wall, awake, beginGameLoop, canvas, checkCollision, checkCollisionWithGroup, context, createGameObjects, drawCircle, drawLine, drawPolygon, drawSquare, drawText, dt, dtStep, fixedUpdate, frame, frames, gameObjects, gameStarted, gravity, last, now, paused, players, render, start, step, timestamp, update,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -341,11 +341,62 @@
 
   /*
   --------------------------------------------
+       Begin _utility-functions.coffee
+  --------------------------------------------
+   */
+
+  gravity = 1;
+
+  checkCollision = function(originalGameObject, x1, y1, wid, hei) {
+    var go, output, _i, _len;
+    output = false;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      go = gameObjects[_i];
+      if (go.enabled && go !== originalGameObject) {
+        if (go.x >= x1 && go.x <= x1 + wid && go.y >= y1 && go.y <= y1 + hei) {
+          output = go;
+          break;
+        }
+      }
+    }
+    return output;
+  };
+
+  checkCollisionWithGroup = function(group, x1, y1, wid, hei) {
+    var go, output, _i, _len;
+    output = false;
+    for (_i = 0, _len = gameObjects.length; _i < _len; _i++) {
+      go = gameObjects[_i];
+      if (go.enabled && go.collisionGroup === group) {
+        if (go.x >= x1 && go.x <= x1 + wid && go.y >= y1 && go.y <= y1 + hei) {
+          output = go;
+          break;
+        }
+      }
+    }
+    return output;
+  };
+
+
+  /*
+  --------------------------------------------
        Begin _game-loop-ssd.coffee
   --------------------------------------------
    */
 
   createGameObjects = function() {
+    var i, p1, wall, _i;
+    p1 = new Player("P1");
+    p1.keyUp = KeyCode.W;
+    p1.keyLeft = KeyCode.A;
+    p1.keyRight = KeyCode.D;
+    p1.keyDown = KeyCode.S;
+    p1.color = "#00ff00";
+    for (i = _i = 1; _i <= 10; i = ++_i) {
+      wall = new Wall("");
+      wall.x = wall.width * i;
+      wall.y = 0.75 * canvas.height;
+    }
     Debug.Log('created objects');
     return null;
   };
@@ -438,7 +489,7 @@
    */
 
   Player = (function(_super) {
-    var color, hp, inCollision, keyDown, keyLeft, keyRight, keyUp, keysPressed, maxHealth, speed;
+    var color, hp, inCollision, jumpSpeed, keyDown, keyLeft, keyRight, keyShoot, keyUp, keysPressed, maxHealth, onGround, speed, velocity;
 
     __extends(Player, _super);
 
@@ -456,13 +507,22 @@
 
     keyRight = null;
 
+    keyShoot = null;
+
     keysPressed = null;
 
     inCollision = null;
 
     speed = null;
 
+    jumpSpeed = null;
+
+    velocity = null;
+
+    onGround = null;
+
     function Player(name) {
+      this.move = __bind(this.move, this);
       this.onCollisionExit = __bind(this.onCollisionExit, this);
       this.onCollisionEnter = __bind(this.onCollisionEnter, this);
       this.onKeyUp = __bind(this.onKeyUp, this);
@@ -483,6 +543,14 @@
       this.collisionGroup = "player";
       this.inCollision = false;
       this.speed = 2;
+      this.jumpSpeed = -20;
+      this.velocity = {
+        x: 0,
+        y: 0,
+        dx: 0,
+        dy: 0
+      };
+      this.onGround = false;
       Player.__super__.constructor.call(this, name);
     }
 
@@ -492,6 +560,11 @@
 
     Player.prototype.update = function(dt) {
       var hor, ver;
+      if (checkCollisionWithGroup("wall", this.x, this.y + 0.5, this.width, this.height)) {
+        this.onGround = true;
+      } else {
+        this.onGround = false;
+      }
       hor = 0;
       ver = 0;
       if (this.keysPressed[this.keyRight]) {
@@ -506,10 +579,14 @@
       if (this.keysPressed[this.keyUp]) {
         ver -= 1;
       }
-      this.x += hor * this.speed;
-      this.y += ver * this.speed;
-      this.x = Math.max(0, Math.min(canvas.width, this.x));
-      this.y = Math.max(0, Math.min(canvas.height, this.y));
+      this.velocity.x = hor * this.speed;
+      if (ver === -1 && this.onGround) {
+        this.velocity.y = this.jumpSpeed;
+      }
+      if (!this.onGround) {
+        this.velocity.y += gravity;
+      }
+      this.move();
       return Player.__super__.update.call(this, dt);
     };
 
@@ -548,6 +625,52 @@
         }
       }
       return _results;
+    };
+
+    Player.prototype.move = function() {
+      var i, xDir, yDir;
+      if (Math.abs(this.velocity.dx) >= 1) {
+        this.velocity.x += this.velocity.dx;
+        this.velocity.dx = 0;
+      }
+      i = 0;
+      xDir = 0;
+      if (this.velocity.x > 0) {
+        xDir = 1;
+      }
+      if (this.velocity.x < 0) {
+        xDir = -1;
+      }
+      if (xDir !== 0) {
+        this.velocity.x = Math.abs(this.velocity.x);
+        while (i < this.velocity.x) {
+          if (!checkCollision(this, this.x + xDir, this.y, this.width, this.height)) {
+            this.x += xDir;
+          }
+          i++;
+        }
+        this.velocity.dx += xDir * (this.velocity.x - Math.floor(this.velocity.x));
+        this.velocity.x = xDir * Math.floor(this.velocity.x);
+      }
+      i = 0;
+      yDir = 0;
+      if (this.velocity.y > 0) {
+        yDir = 1;
+      }
+      if (this.velocity.y < 0) {
+        yDir = -1;
+      }
+      if (yDir !== 0) {
+        this.velocity.y = Math.abs(this.velocity.y);
+        while (i < this.velocity.y) {
+          if (!checkCollision(this, this.x, this.y + yDir, this.width, this.height)) {
+            this.y += yDir;
+          }
+          i++;
+        }
+        this.velocity.dy += yDir * (this.velocity.y - Math.floor(this.velocity.y));
+        return this.velocity.y = yDir * Math.floor(this.velocity.y);
+      }
     };
 
     return Player;
@@ -747,6 +870,34 @@
 
   /*
   --------------------------------------------
+       Begin _wall.coffee
+  --------------------------------------------
+   */
+
+  Wall = (function(_super) {
+    __extends(Wall, _super);
+
+    function Wall(name) {
+      this.render = __bind(this.render, this);
+      this.collisionGroup = "wall";
+      this.width = 32;
+      this.height = 32;
+      this.color = "#badcab";
+      Wall.__super__.constructor.call(this, name);
+    }
+
+    Wall.prototype.render = function(dt) {
+      drawSquare(this.x, this.y, this.width, this.height, this.color);
+      return null;
+    };
+
+    return Wall;
+
+  })(GameObject);
+
+
+  /*
+  --------------------------------------------
        Begin ssd.coffee
   --------------------------------------------
    */
@@ -759,7 +910,7 @@
       if (e.which === KeyCode.T) {
         pl = new Player("Player");
         console.log(pl);
-        pl.color = "#ff0000";
+        pl.color = "#ffff00";
         players.push(pl);
         pl.keyUp = KeyCode.W;
         pl.keyLeft = KeyCode.A;

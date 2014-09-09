@@ -1,11 +1,16 @@
 createGameObjects = () ->
-	# p1 = new Player("P1")
-	# p1.keyUp = KeyCode.W
-	# p1.keyLeft = KeyCode.A
-	# p1.keyRight = KeyCode.D
-	# p1.keyDown = KeyCode.S
-	# p1.color = "#00ff00"
-	#
+	p1 = new Player("P1")
+	p1.keyUp = KeyCode.W
+	p1.keyLeft = KeyCode.A
+	p1.keyRight = KeyCode.D
+	p1.keyDown = KeyCode.S
+	p1.color = "#00ff00"
+
+	for i in [1..10]
+		wall = new Wall("")
+		wall.x = wall.width * i
+		wall.y = 0.75 * canvas.height
+
 	# p2 = new Player("P2")
 	# p2.keyUp = KeyCode.Up
 	# p2.keyLeft = KeyCode.Left
