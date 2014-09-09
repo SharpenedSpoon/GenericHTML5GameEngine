@@ -10,11 +10,11 @@ class Ball extends GameObject
 	constructor: (name) ->
 		super name
 		@collisionGroup = "ball"
-		@velocity = {x: 1, y: 1}
+		@velocity = {x: 2, y: -2}
 
 		@name = name
-		@x = 50
-		@y = 50
+		@x = canvas.width / 2
+		@y = canvas.height - 50
 		@width = 4
 		@height = 4
 
@@ -43,9 +43,12 @@ class Ball extends GameObject
 		if @x > canvas.width || @x < 0
 			@velocity.x = -1 * @velocity.x
 			@x = Math.min(canvas.width, Math.max(0, @x))
-		if @y > canvas.height || @y < 0
+		if @y < 0
 			@velocity.y = -1 * @velocity.y
 			@y = Math.min(canvas.height, Math.max(0, @y))
+
+		if @y > canvas.height
+			gameController.reset()
 
 	render: (dt) =>
 		#super dt
@@ -62,7 +65,7 @@ class Ball extends GameObject
 	onCollisionEnter: (other) =>
 		horizCollision = false
 		vertCollision = false
-		if other.collisionGroup == 'player'
+		if other.collisionGroup == 'player' || other.collisionGroup == 'brick'
 			# figure out what direction the collision came from
 			# That is, figure out where the other object is
 			# - to the left of curr obj, or to right, or..?
@@ -121,55 +124,16 @@ class Ball extends GameObject
 				collisionSide = 'left'
 
 
-			###
-			# figure out where the other object is
-			if centerOther.x <= center.x # other object is to the left
-				horizCollision = true
-				debugText += '...on left '
-			if centerOther.x >= center.x # other object is to the right
-				horizCollision = true
-				debugText += '...on right '
-			if centerOther.y <= center.y # other object is to the top
-				vertCollision = true
-				debugText += '...on top '
-			if centerOther.y >= center.y # other object is to the bottom
-				vertCollision = true
-				debugText += '...on bottom '
-
-			console.log horizCollision
-			console.log vertCollision
-			# if both types of collisions were found, determine
-			# if one were more predominant
-			if horizCollision && vertCollision
-				# if we backed off the horizontal would we still
-				# have a horizontal collision? If so, that's bad.
-				# which means that this should only be a vertical
-				# collision
-				if Math.abs(centerOther.x - center.x) >= 0.9 * halfSizeOther.width
-					horizCollision = false
-					debugText += '...got rid of horiz '
-
-				if Math.abs(centerOther.y - center.y) >= 0.9 * halfSizeOther.height
-					vertCollision = false
-					debugText += '...got rid of vert '
-
-				# sanity check: if we just got rid of both the
-				# horiz and the vert collisions, then let's just
-				# put them both back and assume (or at leas pretend)
-				# it's a diagonal collision.
-				if ! horizCollision && ! vertCollision
-					horizCollision = true
-					vertCollision = true
-					debugText += '...got rid of too many things- put it back put it back oh shhiiiiiii'
-			###
-
-
 			console.log debugText
 			#paused = true
 
 
 			@velocity.x *= -1 if horizCollision
 			@velocity.y *= -1 if vertCollision
+
+		if other.collisionGroup == 'brick'
+			other.destroy()
+
 		return null
 
 	onCollisionExit: (other) =>

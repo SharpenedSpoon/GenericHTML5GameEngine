@@ -1,21 +1,16 @@
+gameController = null
+
 createGameObjects = () ->
+	gameController = new GameController('game controller')
+
+
+
 	p1 = new Player("P1")
 	p1.keyUp = KeyCode.W
 	p1.keyLeft = KeyCode.A
 	p1.keyRight = KeyCode.D
 	p1.keyDown = KeyCode.S
 	p1.color = "#badcab"
-
-	###
-	p2 = new Player("P2")
-	p2.keyUp = KeyCode.Up
-	p2.keyLeft = KeyCode.Left
-	p2.keyRight = KeyCode.Right
-	p2.keyDown = KeyCode.Down
-	p2.color = "#0000ff"
-	###
-
-	ball = new Ball("ball")
 
 	Debug.Log('created objects')
 	return null
@@ -38,7 +33,7 @@ update = (dt) ->
 fixedUpdate = (step) ->
 	oldCollide = false
 	for o1 in gameObjects
-		if o1.enabled
+		if o1.enabled && o1.collisionGroup == 'ball'
 			o1.fixedUpdate(step)
 
 			# check for collisions with each other object

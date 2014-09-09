@@ -16,7 +16,6 @@ class Player extends GameObject
 	speed = null
 
 	constructor: (name) ->
-		super name
 		@color = "#000000"
 		@maxHealth = 10
 		@hp = @maxHealth
@@ -30,6 +29,7 @@ class Player extends GameObject
 		@inCollision = false
 
 		@speed = 2
+		super name
 
 
 	awake: () =>
