@@ -7,10 +7,15 @@ class GameController extends GameObject
 		super name
 
 	awake: () =>
-		@reset()
+		super
+
+	start: () =>
 		super
 
 	update: (dt) =>
+		if numberOfBricks == 0
+			console.log 'No bricks - resetting'
+			@reset()
 		super dt
 
 	render: (dt) =>
@@ -24,16 +29,17 @@ class GameController extends GameObject
 
 	reset: () =>
 		@score = 0
-		gameObjects = [this, new Player('')]
+		gameObjects = [this]
 
-		###
-		p2 = new Player("P2")
-		p2.keyUp = KeyCode.Up
-		p2.keyLeft = KeyCode.Left
-		p2.keyRight = KeyCode.Right
-		p2.keyDown = KeyCode.Down
-		p2.color = "#0000ff"
-		###
+		p1 = new Player("P1")
+		p1.keyUp = KeyCode.W
+		p1.keyLeft = KeyCode.A
+		p1.keyRight = KeyCode.D
+		p1.keyDown = KeyCode.S
+		p1.color = "#badcab"
+		p1.awake()
+
+		console.log p1
 
 		bWid = 32
 		bHei = 16

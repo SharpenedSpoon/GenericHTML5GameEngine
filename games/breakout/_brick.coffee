@@ -5,6 +5,7 @@ class Brick extends GameObject
 	constructor: (name) ->
 		@color = '#abc123'
 		@collisionGroup = 'brick'
+		numberOfBricks += 1
 		super name
 
 	awake: () =>
@@ -20,4 +21,5 @@ class Brick extends GameObject
 
 	destroy: () =>
 		gameController.addScore(100)
+		numberOfBricks -= 1
 		@enabled = false

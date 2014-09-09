@@ -1,16 +1,9 @@
 gameController = null
+numberOfBricks = null
 
 createGameObjects = () ->
+	numberOfBricks = 0
 	gameController = new GameController('game controller')
-
-
-
-	p1 = new Player("P1")
-	p1.keyUp = KeyCode.W
-	p1.keyLeft = KeyCode.A
-	p1.keyRight = KeyCode.D
-	p1.keyDown = KeyCode.S
-	p1.color = "#badcab"
 
 	Debug.Log('created objects')
 	return null

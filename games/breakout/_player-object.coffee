@@ -16,6 +16,7 @@ class Player extends GameObject
 	speed = null
 
 	constructor: (name) ->
+		super name
 		@color = "#000000"
 		@maxHealth = 10
 		@hp = @maxHealth
@@ -29,7 +30,6 @@ class Player extends GameObject
 		@inCollision = false
 
 		@speed = 2
-		super name
 
 
 	awake: () =>
@@ -38,6 +38,11 @@ class Player extends GameObject
 
 		@x = canvas.width / 2
 		@y = canvas.height - 2 * @height
+
+		@keyUp = KeyCode.W
+		@keyLeft = KeyCode.A
+		@keyDown = KeyCode.S
+		@keyRight = KeyCode.D
 		super
 
 	update: (dt) =>
